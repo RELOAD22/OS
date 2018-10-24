@@ -32,8 +32,45 @@
 #include "common.h"
 #include "syscall.h"
 
+#define STACK_BASE  0xa0f00000
+#define STACK_SIZE 0x100000
+
+/* ready queue to run */
+queue_t ready_queue;
+
+/* block queue to wait */
+queue_t block_queue;
+
+/* current running task PCB */
+pcb_t *current_running;
+pid_t process_id;
+
+pcb_t pcb[NUM_MAX_TASK];
+
 static void init_pcb()
 {
+	queue_init(&ready_queue);
+	queue_init(&block_queue);
+
+	int stack_temp = STACK_BASE; int i = 0;
+	
+	for( i = 0; i < num_sched1_tasks; ++i){
+		pcb[i].kernel_stack_top = pcb[i].kernel_context.regs[29] = stack_temp;
+		pcb[i].pid = process_id++;
+		pcb[i].kernel_context.regs[31] = pcb[i].kernel_context.pc = sched1_tasks[i]->entry_point;
+		pcb[i].status = TASK_READY;
+		stack_temp -= STACK_SIZE;
+		queue_push(&ready_queue, &pcb[i]);
+	}
+
+	for(; i < num_sched1_tasks + num_lock_tasks; ++i){
+		pcb[i].kernel_stack_top = pcb[i].kernel_context.regs[29] = stack_temp;
+		pcb[i].pid = process_id++;
+		pcb[i].kernel_context.regs[31] = pcb[i].kernel_context.pc = lock_tasks[i - num_sched1_tasks]->entry_point;
+		pcb[i].status = TASK_READY;
+		stack_temp -= STACK_SIZE;
+		queue_push(&ready_queue, &pcb[i]);
+	}
 }
 
 static void init_exception_handler()
@@ -78,12 +115,13 @@ void __attribute__((section(".entry_function"))) _start(void)
 	printk("> [INIT] SCREEN initialization succeeded.\n");
 
 	// TODO Enable interrupt
-	
+	current_running = 0;
+	init_scheduler();
 	while (1)
 	{
 		// (QAQQQQQQQQQQQ)
 		// If you do non-preemptive scheduling, you need to use it to surrender control
-		// do_scheduler();
+		//init_scheduler();
 	};
 	return;
 }

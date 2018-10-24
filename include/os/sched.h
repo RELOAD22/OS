@@ -31,6 +31,7 @@
 
 #include "type.h"
 #include "queue.h"
+#include "lock.h"
 
 #define NUM_MAX_TASK 16
 
@@ -94,6 +95,7 @@ typedef struct pcb
     int cursor_x;
     int cursor_y;
 
+    mutex_lock_t *lock;
 } pcb_t;
 
 /* task information, used to init PCB */

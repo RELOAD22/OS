@@ -55,26 +55,29 @@ static void init_pcb()
 	int stack_temp = STACK_BASE; int i = 0;
 	
 	for( i = 0; i < num_sched1_tasks; ++i){
-		pcb[i].kernel_stack_top = pcb[i].kernel_context.regs[29] = stack_temp;
+		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
-		pcb[i].kernel_context.regs[31] = pcb[i].kernel_context.pc = sched1_tasks[i]->entry_point;
+		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = sched1_tasks[i]->entry_point;
 		pcb[i].status = TASK_READY;
+		pcb[i].user_context.cp0_status = 0x00008001;
+		pcb[i].user_context.cp0_epc = 0x0;
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}
-
+	/*
 	for(; i < num_sched1_tasks + num_lock_tasks; ++i){
-		pcb[i].kernel_stack_top = pcb[i].kernel_context.regs[29] = stack_temp;
+		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
-		pcb[i].kernel_context.regs[31] = pcb[i].kernel_context.pc = lock_tasks[i - num_sched1_tasks]->entry_point;
+		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = lock_tasks[i - num_sched1_tasks]->entry_point;
 		pcb[i].status = TASK_READY;
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
-	}
+	}*/
 }
 
 static void init_exception_handler()
 {
+
 }
 
 static void init_exception()
@@ -83,6 +86,13 @@ static void init_exception()
 	// 2. Disable all interrupt
 	// 3. Copy the level 2 exception handling code to 0x80000180
 	// 4. reset CP0_COMPARE & CP0_COUNT register
+	printk("begin copy\n");
+	copy_code();	//含有关中断操作
+	int * copy_begin_ptr = exception_handler_begin;
+	int * copy_end_ptr = exception_handler_end;
+	printk("%x -- %x \n", copy_begin_ptr, copy_end_ptr);
+	printk("copy %d bytes succeed\n", copy_end_ptr - copy_begin_ptr);
+	reset_CPCOUNT();
 }
 
 static void init_syscall(void)
@@ -97,7 +107,7 @@ void __attribute__((section(".entry_function"))) _start(void)
 	// Close the cache, no longer refresh the cache 
 	// when making the exception vector entry copy
 	asm_start();
-
+	current_running = 0;
 	// init interrupt (^_^)
 	init_exception();
 	printk("> [INIT] Interrupt processing initialization succeeded.\n");
@@ -114,8 +124,8 @@ void __attribute__((section(".entry_function"))) _start(void)
 	init_screen();
 	printk("> [INIT] SCREEN initialization succeeded.\n");
 
-	// TODO Enable interrupt
-	current_running = 0;
+	enable_interrupt();
+
 	init_scheduler();
 	while (1)
 	{

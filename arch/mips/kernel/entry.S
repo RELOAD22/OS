@@ -3,10 +3,17 @@
 .equ    KERNEL, 0
 .equ    USER,   156
 
+#开中断
 .macro STI
+    mfc0    k0, CP0_STATUS
+    ori     k0, 0x1
+    mtc0    k0, CP0_STATUS	
 .endm
-
+#关中断
 .macro CLI
+    mfc0    k0, CP0_STATUS
+    and     k0, ~0x1
+    mtc0    k0, CP0_STATUS
 .endm
 
 LEAF(asm_start)
@@ -67,6 +74,13 @@ END(asm_start)
 	sw k1, 132(k0)
 	mflo k1
 	sw k1, 136(k0)
+
+	mfc0 k1, CP0_BADVADDR
+	sw k1, 140(k0)
+	mfc0 k1, CP0_CAUSE
+	sw k1, 144(k0)
+	mfc0 k1, CP0_EPC
+	sw k1, 148(k0)
 .endm
 
 .macro RESTORE_CONTEXT offset
@@ -115,20 +129,64 @@ END(asm_start)
 	mthi k1
 	lw k1, 136(k0)
 	mtlo k1
+
+	lw k1, 140(k0)
+	mtc0 k1, CP0_BADVADDR
+	lw k1, 144(k0)
+	mtc0 k1, CP0_CAUSE
+	lw k1, 148(k0)
+	mtc0 k1, CP0_EPC
 .endm
 
 NESTED(init_scheduler, 0, ra)
     jal     scheduler
-    RESTORE_CONTEXT(KERNEL)
+    RESTORE_CONTEXT(USER)
 	jr      ra
 END(init_scheduler)
 
 NESTED(do_scheduler, 0, ra)
-    SAVE_CONTEXT(KERNEL)
+    SAVE_CONTEXT(USER)
     jal     scheduler
-    RESTORE_CONTEXT(KERNEL)
+    RESTORE_CONTEXT(USER)
     jr      ra
 END(do_scheduler)
+
+NESTED(reset_CPCOUNT, 0, ra)
+    mtc0    zero, CP0_COUNT
+	li      k0, 0x2000000
+    mtc0    k0, CP0_COMPARE
+    jr  ra
+END(reset_CPCOUNT)
+
+NESTED(copy_code, 0, ra)
+    mfc0    k0, CP0_STATUS
+    and     k0, ~0x1
+    mtc0    k0, CP0_STATUS
+	li      t2, 0x0
+	la      t4, exception_handler_end
+loop:
+	la      t0, exception_handler_begin
+	li      t1, 0x80000180
+	add     t0, t0, t2
+	add     t1, t1, t2
+	lw      t3, 0(t0)
+	sw      t3, 0(t1)
+	add     t2, t2, 0x4
+	ble     t0, t4, loop
+
+	jr      ra
+END(copy_code)
+
+NESTED(enable_interrupt, 0, ra)
+    mtc0    zero, CP0_COUNT
+	li      k0, 0x20000
+    mtc0    k0, CP0_COMPARE
+
+    mfc0    k0, CP0_STATUS
+    ori     k0, 0x8001
+    mtc0    k0, CP0_STATUS	
+    jr  ra
+END(enable_interrupt)
 
 .global exception_handler_begin
 .global exception_handler_end
@@ -138,12 +196,44 @@ exception_handler_begin:
     // TODO close interrupt
     // jmp exception_handler[i] which decided by CP0_CAUSE
     // Leve2 exception Handler.
+	#关中断
+    CLI
+
+	#保存现场
+    SAVE_CONTEXT(USER)
+	jal     handle_int
 exception_handler_end:
 END(exception_handler_entry)
 
 NESTED(handle_int, 0, sp)
     // interrupt handler
     // Leve3 exception Handler.
+	// jal interrupt_helper
+
+	SAVE_CONTEXT(KERNEL)
+    jal     scheduler	
+	RESTORE_CONTEXT(KERNEL)
+
+    RESTORE_CONTEXT(USER)	
+	#恢复计时器
+    mtc0    zero, CP0_COUNT
+	li      k0, 0x5000000
+    mtc0    k0, CP0_COMPARE
+
+	#重置status后16位
+	mfc0    k0, CP0_STATUS
+    and     k0, 0xffff8001
+    mtc0    k0, CP0_STATUS	
+
+    #判断是否是第一次调用pcb，若是则使用ra替换epc使之可以正确返回
+	li      k1, 0x0
+	mfc0    k0, CP0_EPC
+	bne     k0, k1, 1f
+	mtc0    ra, CP0_EPC
+1:
+	#开中断
+    STI
+	nop
 END(handle_int)
 
 NESTED(handle_syscall, 0, sp)
@@ -153,5 +243,3 @@ END(handle_syscall)
 NESTED(handle_other, 0, sp)
     // other exception handler
 END(handle_other)
-
-

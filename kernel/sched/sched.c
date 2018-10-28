@@ -22,13 +22,13 @@ void scheduler(void)
     if(queue_is_empty(&ready_queue))
         return; 
 
-	if (current_running&&(current_running->status != TASK_BLOCKED)){
+	if (current_running){
         queue_push(&ready_queue, current_running);
-	    current_running->status = TASK_READY;
+	    //current_running->status = TASK_READY;
     }
 
 	current_running = queue_dequeue(&ready_queue);
-	current_running->status = TASK_RUNNING;
+	//current_running->status = TASK_RUNNING;
 }
 
 void do_sleep(uint32_t sleep_time)

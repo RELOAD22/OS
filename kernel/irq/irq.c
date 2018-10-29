@@ -7,7 +7,7 @@ static void irq_timer()
 {
     // TODO clock interrupt handler.
     // scheduler, time counter in here to do, emmmmmm maybe.
-    
+    scheduler();
 }
 
 void interrupt_helper(uint32_t status, uint32_t cause)

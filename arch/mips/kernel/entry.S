@@ -197,9 +197,24 @@ exception_handler_begin:
     // Leve2 exception Handler.
 	#关中断
     CLI
-
 	#保存现场
     SAVE_CONTEXT(USER)
+	mfc0    k0, CP0_CAUSE
+	and     k0, 0x7c
+	beqz    k0, 1f	#判断是否为中断，若是则跳转，否则跳过
+	#重置status和CAUSE后16位
+	mfc0    k0, CP0_STATUS
+    and     k0, 0xffff8001
+    mtc0    k0, CP0_STATUS	
+	mfc0    k0, CP0_CAUSE
+    and     k0, 0xffff80ff
+    mtc0    k0, CP0_CAUSE	
+	RESTORE_CONTEXT(USER)
+	#开中断
+    STI
+	eret
+	nop
+1:
 	jal     handle_int
 exception_handler_end:
 END(exception_handler_entry)
@@ -207,31 +222,38 @@ END(exception_handler_entry)
 NESTED(handle_int, 0, sp)
     // interrupt handler
     // Leve3 exception Handler.
-	// jal interrupt_helper
+	mfc0    k0, CP0_CAUSE
+	and     k0, 0x8000
+	beqz    k0, 1f	#判断是否为时钟中断，若是则继续执行，否则跳过
+	nop
 
 	SAVE_CONTEXT(KERNEL)
-    jal     scheduler	
+    jal     interrupt_helper
 	RESTORE_CONTEXT(KERNEL)
 
-    RESTORE_CONTEXT(USER)	
+1:
 	#恢复计时器
     mtc0    zero, CP0_COUNT
 	li      k0, 0x5000000
     mtc0    k0, CP0_COMPARE
-
-	#重置status后16位
+	#重置status和CAUSE后16位
 	mfc0    k0, CP0_STATUS
     and     k0, 0xffff8001
     mtc0    k0, CP0_STATUS	
+	mfc0    k0, CP0_CAUSE
+    and     k0, 0xffff80ff
+    mtc0    k0, CP0_CAUSE	
 
+    RESTORE_CONTEXT(USER)
     #判断是否是第一次调用pcb，若是则使用ra替换epc使之可以正确返回
 	li      k1, 0x0
 	mfc0    k0, CP0_EPC
-	bne     k0, k1, 1f
+	bne     k0, k1, 2f
 	mtc0    ra, CP0_EPC
-1:
+2:
 	#开中断
     STI
+	eret
 	nop
 END(handle_int)
 

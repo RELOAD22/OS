@@ -159,9 +159,8 @@ NESTED(reset_CPCOUNT, 0, ra)
 END(reset_CPCOUNT)
 
 NESTED(copy_code, 0, ra)
-    mfc0    k0, CP0_STATUS
-    and     k0, ~0x1
-    mtc0    k0, CP0_STATUS
+    CLI
+	
 	li      t2, 0x0
 	la      t4, exception_handler_end
 loop:

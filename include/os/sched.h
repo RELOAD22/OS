@@ -96,6 +96,8 @@ typedef struct pcb
     int cursor_y;
 
     mutex_lock_t *lock;
+
+    int priority;
 } pcb_t;
 
 /* task information, used to init PCB */
@@ -117,6 +119,7 @@ extern pid_t process_id;
 
 extern pcb_t pcb[NUM_MAX_TASK];
 extern uint32_t initial_cp0_status;
+extern int priority_weight[NUM_MAX_TASK];
 
 void printinfo(void);
 void do_scheduler(void);

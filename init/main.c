@@ -46,14 +46,14 @@ pcb_t *current_running;
 pid_t process_id;
 
 pcb_t pcb[NUM_MAX_TASK];
-
+int priority_weight[NUM_MAX_TASK] = {4,4,8};
 static void init_pcb()
 {
 	queue_init(&ready_queue);
 	queue_init(&block_queue);
 
 	int stack_temp = STACK_BASE; int i = 0;
-	
+	int count;
 	for( i = 0; i < num_sched1_tasks; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
@@ -73,6 +73,10 @@ static void init_pcb()
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}*/
+
+	for(count = 0; count <= NUM_MAX_TASK; count++){
+		pcb[count].priority = priority_weight[count];
+	}
 }
 
 static void init_exception_handler()

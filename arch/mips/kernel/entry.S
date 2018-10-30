@@ -201,14 +201,10 @@ exception_handler_begin:
     SAVE_CONTEXT(USER)
 	mfc0    k0, CP0_CAUSE
 	and     k0, 0x7c
-	beqz    k0, 1f	#判断是否为中断，若是则跳转，否则跳过
-	#重置status和CAUSE后16位
-	mfc0    k0, CP0_STATUS
-    and     k0, 0xffff8001
-    mtc0    k0, CP0_STATUS	
-	mfc0    k0, CP0_CAUSE
-    and     k0, 0xffff80ff
-    mtc0    k0, CP0_CAUSE	
+	beqz    k0, 1f	#判断是否为中断，若是则跳转，否则继续执行
+	and     k0, 0x1f
+	beqz    k0, 2f	#判断是否为系统调用，若是则跳转，否则继续执行
+
 	RESTORE_CONTEXT(USER)
 	#开中断
     STI
@@ -216,6 +212,13 @@ exception_handler_begin:
 	nop
 1:
 	jal     handle_int
+2:
+	li      k1, 0x4
+    mfc0    k0, CP0_EPC
+	add     k0, k0, k1
+	mtc0    k0, CP0_EPC
+    SAVE_CONTEXT(USER)
+	jal     handle_syscall
 exception_handler_end:
 END(exception_handler_entry)
 
@@ -236,13 +239,6 @@ NESTED(handle_int, 0, sp)
     mtc0    zero, CP0_COUNT
 	li      k0, 0x5000000
     mtc0    k0, CP0_COMPARE
-	#重置status和CAUSE后16位
-	mfc0    k0, CP0_STATUS
-    and     k0, 0xffff8001
-    mtc0    k0, CP0_STATUS	
-	mfc0    k0, CP0_CAUSE
-    and     k0, 0xffff80ff
-    mtc0    k0, CP0_CAUSE	
 
     RESTORE_CONTEXT(USER)
     #判断是否是第一次调用pcb，若是则使用ra替换epc使之可以正确返回
@@ -259,6 +255,22 @@ END(handle_int)
 
 NESTED(handle_syscall, 0, sp)
     // system call handler
+	SAVE_CONTEXT(KERNEL)
+	jal     system_call_helper
+	RESTORE_CONTEXT(KERNEL)
+
+    RESTORE_CONTEXT(USER)
+
+    #判断是否是第一次调用pcb，若是则使用ra替换epc使之可以正确返回
+	li      k1, 0x0
+	mfc0    k0, CP0_EPC
+	bne     k0, k1, 3f
+	mtc0    ra, CP0_EPC
+3:
+	#开中断
+    STI
+	eret
+	nop	
 END(handle_syscall)
 
 NESTED(handle_other, 0, sp)

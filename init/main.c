@@ -54,6 +54,7 @@ static void init_pcb()
 
 	int stack_temp = STACK_BASE; int i = 0;
 	int count;
+	/*
 	for( i = 0; i < num_sched1_tasks; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
@@ -63,7 +64,7 @@ static void init_pcb()
 		pcb[i].user_context.cp0_epc = 0x0;
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
-	}
+	}*/
 	/*
 	for(; i < num_sched1_tasks + num_lock_tasks; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
@@ -73,6 +74,16 @@ static void init_pcb()
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}*/
+	for( i = 0; i < num_timer_tasks; ++i){
+		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
+		pcb[i].pid = process_id++;
+		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = timer_tasks[i]->entry_point;
+		pcb[i].status = TASK_READY;
+		pcb[i].user_context.cp0_status = 0x00008001;
+		pcb[i].user_context.cp0_epc = 0x0;
+		stack_temp -= STACK_SIZE;
+		queue_push(&ready_queue, &pcb[i]);
+	}
 
 	for(count = 0; count <= NUM_MAX_TASK; count++){
 		pcb[count].priority = priority_weight[count];
@@ -102,6 +113,8 @@ static void init_exception()
 static void init_syscall(void)
 {
 	// init system call table.
+	syscall[SYSCALL_SLEEP] = do_sleep;
+	syscall[SYSCALL_WRITE] = port_write;
 }
 
 // jump from bootloader.

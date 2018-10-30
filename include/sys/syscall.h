@@ -57,7 +57,7 @@ int (*syscall[NUM_SYSCALLS])();
 void system_call_helper(int, int, int, int);
 extern int invoke_syscall(int, int, int, int);
 
-void sys_sleep(uint32_t);
+void sys_sleep(int);
 
 void sys_block(queue_t *);
 void sys_unblock_one(queue_t *);

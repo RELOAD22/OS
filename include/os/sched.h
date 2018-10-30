@@ -123,7 +123,7 @@ extern int priority_weight[NUM_MAX_TASK];
 
 void printinfo(void);
 void do_scheduler(void);
-void do_sleep(uint32_t);
+void do_sleep(int);
 
 void do_block(queue_t *);
 void do_unblock_one(queue_t *);

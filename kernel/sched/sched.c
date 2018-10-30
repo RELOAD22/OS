@@ -12,10 +12,17 @@
 
 /* global process id */
 //pid_t process_id = 1;
+unsigned int wait_time;
+unsigned int time_place;
 typedef pcb_t item_t;
-//int priority_weight[NUM_MAX_TASK] = {4,4,8};
+extern uint32_t time_elapsed;
 static void check_sleeping()
 {
+    if(time_elapsed - time_place > wait_time && !queue_is_empty(&block_queue)){
+        pcb_t *blockeditem = queue_dequeue(&block_queue);
+	    blockeditem->status = TASK_READY;
+	    queue_push(&ready_queue, blockeditem);
+    }
 }
 
 void scheduler(void)
@@ -23,14 +30,15 @@ void scheduler(void)
     item_t * item = ready_queue.head;
     item_t * item_max_priority = ready_queue.head;
     int temp_priority = 0; int count = 0;
+    check_sleeping();
     if(queue_is_empty(&ready_queue))
         return; 
 
-	if (current_running){
+	if (current_running&&current_running->status != TASK_BLOCKED){
         queue_push(&ready_queue, current_running);
-	    //current_running->status = TASK_READY;
+	    current_running->status = TASK_READY;
     }
-
+/*
     for(;item != NULL; item = item->next){
         if(item->priority > temp_priority){
             temp_priority = item->priority;
@@ -52,13 +60,21 @@ void scheduler(void)
 
     queue_remove(&ready_queue, item_max_priority);
     current_running = item_max_priority;
-    //current_running = queue_dequeue(&ready_queue);
-	//current_running->status = TASK_RUNNING;
+    current_running->status = TASK_RUNNING;*/
+    current_running = queue_dequeue(&ready_queue);
+	current_running->status = TASK_RUNNING;
 }
 
-void do_sleep(uint32_t sleep_time)
+void do_sleep(int sleep_time)
 {
-    // TODO sleep(seconds)
+    wait_time = sleep_time * 10000000;
+    time_place = time_elapsed;
+    // block the current_running task into the queue
+    queue_push(&block_queue, current_running);
+	current_running->status = TASK_BLOCKED;
+    //调用调度器，注意此时current所指的线程不会放至就绪队列
+    printk("sleep!!!!!");
+    scheduler();
 }
 
 void do_block(queue_t *queue)

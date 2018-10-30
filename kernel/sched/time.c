@@ -1,5 +1,5 @@
 #include "time.h"
-
+#include "type.h"
 uint32_t time_elapsed = 0;
 
 static int MHZ = 300;

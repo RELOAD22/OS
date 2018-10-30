@@ -74,6 +74,8 @@ static void init_pcb()
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}*/
+	//task4 timer_tasks
+	/*
 	for( i = 0; i < num_timer_tasks; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
@@ -83,8 +85,30 @@ static void init_pcb()
 		pcb[i].user_context.cp0_epc = 0x0;
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
+	}*/
+	//task4 sched2_tasks
+	/*
+	for( i = 0; i < num_sched2_tasks; ++i){
+		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
+		pcb[i].pid = process_id++;
+		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = sched2_tasks[i]->entry_point;
+		pcb[i].status = TASK_READY;
+		pcb[i].user_context.cp0_status = 0x00008001;
+		pcb[i].user_context.cp0_epc = 0x0;
+		stack_temp -= STACK_SIZE;
+		queue_push(&ready_queue, &pcb[i]);
+	}*/
+	//task4 lock_tasks
+	for( i = 0; i < num_lock_tasks; ++i){
+		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
+		pcb[i].pid = process_id++;
+		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = lock_tasks[i]->entry_point;
+		pcb[i].status = TASK_READY;
+		pcb[i].user_context.cp0_status = 0x00008001;
+		pcb[i].user_context.cp0_epc = 0x0;
+		stack_temp -= STACK_SIZE;
+		queue_push(&ready_queue, &pcb[i]);
 	}
-
 	for(count = 0; count <= NUM_MAX_TASK; count++){
 		pcb[count].priority = priority_weight[count];
 	}
@@ -116,6 +140,9 @@ static void init_syscall(void)
 	syscall[SYSCALL_SLEEP] = do_sleep;
 	syscall[SYSCALL_WRITE] = port_write;
 	syscall[SYSCALL_CURSOR] = vt100_move_cursor;
+	syscall[SYSCALL_MUTEX_LOCK_INIT] = do_mutex_lock_init;
+	syscall[SYSCALL_MUTEX_LOCK_ACQUIRE] = do_mutex_lock_acquire;
+	syscall[SYSCALL_MUTEX_LOCK_RELEASE] = do_mutex_lock_release;
 }
 
 // jump from bootloader.

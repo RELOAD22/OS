@@ -115,6 +115,7 @@ static void init_syscall(void)
 	// init system call table.
 	syscall[SYSCALL_SLEEP] = do_sleep;
 	syscall[SYSCALL_WRITE] = port_write;
+	syscall[SYSCALL_CURSOR] = vt100_move_cursor;
 }
 
 // jump from bootloader.

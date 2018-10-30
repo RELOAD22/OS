@@ -67,13 +67,12 @@ void scheduler(void)
 
 void do_sleep(int sleep_time)
 {
-    wait_time = sleep_time * 10000000;
+    wait_time = sleep_time * 300;
     time_place = time_elapsed;
     // block the current_running task into the queue
     queue_push(&block_queue, current_running);
 	current_running->status = TASK_BLOCKED;
     //调用调度器，注意此时current所指的线程不会放至就绪队列
-    printk("sleep!!!!!");
     scheduler();
 }
 

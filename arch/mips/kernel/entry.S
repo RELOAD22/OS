@@ -231,7 +231,11 @@ NESTED(handle_int, 0, sp)
 	nop
 
 	SAVE_CONTEXT(KERNEL)
-    jal     interrupt_helper
+	mfc0 a0, CP0_STATUS
+	mfc0 a1, CP0_CAUSE	
+	addiu sp,sp,-8
+	jal interrupt_helper
+	addiu sp,sp,8
 	RESTORE_CONTEXT(KERNEL)
 
 1:

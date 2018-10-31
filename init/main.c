@@ -31,6 +31,7 @@
 #include "screen.h"
 #include "common.h"
 #include "syscall.h"
+#include "time.h"
 
 #define STACK_BASE  0xa0f00000
 #define STACK_SIZE 0x100000
@@ -44,9 +45,11 @@ queue_t block_queue;
 /* current running task PCB */
 pcb_t *current_running;
 pid_t process_id;
-
 pcb_t pcb[NUM_MAX_TASK];
-int priority_weight[NUM_MAX_TASK] = {4,4,8};
+int priority_weight[NUM_MAX_TASK]= {4,4,8,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+extern uint32_t time_elapsed;	//time.c
+
 static void init_pcb()
 {
 	queue_init(&ready_queue);
@@ -54,6 +57,7 @@ static void init_pcb()
 
 	int stack_temp = STACK_BASE; int i = 0;
 	int count;
+	//优先级调度
 	/*
 	for( i = 0; i < num_sched1_tasks; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
@@ -74,6 +78,7 @@ static void init_pcb()
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}*/
+
 	//task4 timer_tasks
 	/*
 	for( i = 0; i < num_timer_tasks; ++i){
@@ -86,8 +91,9 @@ static void init_pcb()
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}*/
+
 	//task4 sched2_tasks
-	/*
+	
 	for( i = 0; i < num_sched2_tasks; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
@@ -97,8 +103,10 @@ static void init_pcb()
 		pcb[i].user_context.cp0_epc = 0x0;
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
-	}*/
+	}
+
 	//task4 lock_tasks
+	/*
 	for( i = 0; i < num_lock_tasks; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
@@ -108,10 +116,13 @@ static void init_pcb()
 		pcb[i].user_context.cp0_epc = 0x0;
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
-	}
-	for(count = 0; count <= NUM_MAX_TASK; count++){
+	}*/
+	printk("\npriority:");
+	for(count = 0; count < NUM_MAX_TASK; count++){
 		pcb[count].priority = priority_weight[count];
+		printk("%d ", priority_weight[count]);
 	}
+	printk("\n");
 }
 
 static void init_exception_handler()
@@ -138,8 +149,8 @@ static void init_syscall(void)
 {
 	// init system call table.
 	syscall[SYSCALL_SLEEP] = do_sleep;
-	syscall[SYSCALL_WRITE] = port_write;
-	syscall[SYSCALL_CURSOR] = vt100_move_cursor;
+	syscall[SYSCALL_WRITE] = screen_write;
+	syscall[SYSCALL_CURSOR] = screen_move_cursor;
 	syscall[SYSCALL_MUTEX_LOCK_INIT] = do_mutex_lock_init;
 	syscall[SYSCALL_MUTEX_LOCK_ACQUIRE] = do_mutex_lock_acquire;
 	syscall[SYSCALL_MUTEX_LOCK_RELEASE] = do_mutex_lock_release;
@@ -153,6 +164,7 @@ void __attribute__((section(".entry_function"))) _start(void)
 	// when making the exception vector entry copy
 	asm_start();
 	current_running = 0;
+	time_elapsed = 0;
 	// init interrupt (^_^)
 	init_exception();
 	printk("> [INIT] Interrupt processing initialization succeeded.\n");
@@ -168,7 +180,7 @@ void __attribute__((section(".entry_function"))) _start(void)
 	// init screen (QAQ)
 	init_screen();
 	printk("> [INIT] SCREEN initialization succeeded.\n");
-
+	screen_clear();
 	enable_interrupt();
 
 	init_scheduler();

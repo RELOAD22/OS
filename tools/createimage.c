@@ -21,6 +21,40 @@ void write_filesegement_image(FILE *image, FILE *file, Elf32_Phdr *phdr)
     free(buffer_ptr);
 }
 
+void write_filesegement_image_kernel(FILE *image, FILE *file, Elf32_Phdr *phdr)
+{
+    FILE *file_elf = file;
+    void *buffer_ptr;
+    int phoffset = 0; //程序头表偏移
+    int phnum = 0;//程序头表数目
+ 
+ 	//读入elf头文件
+	Elf32_Ehdr *Elf_header = (Elf32_Ehdr *)malloc(sizeof(Elf32_Ehdr));
+	memset(Elf_header,0,sizeof(Elf32_Ehdr));
+	fseek(file_elf,0,SEEK_SET);
+    fread(Elf_header,sizeof(Elf32_Ehdr),1,file_elf);
+ 
+    phoffset = Elf_header->e_phoff;
+    phnum = Elf_header->e_phnum;
+	printf("kernel: %d segements\n", phnum);
+
+    //将bootblock中的程序头表转存进结构数组中
+	Elf32_Phdr *Pro_header = (Elf32_Phdr *)malloc(phnum * sizeof(Elf32_Phdr));
+    fseek(file_elf,phoffset,SEEK_SET);
+    fread((Elf32_Phdr *)Pro_header,sizeof(Elf32_Phdr),phnum,file_elf);
+
+    //按照存储在程序头表中的各项分别找到对应段存入image
+    while(phnum -- > 0){		
+    	fseek(file_elf, (Pro_header[phnum]).p_offset, SEEK_SET);
+    	buffer_ptr = (void *)malloc((Pro_header[phnum]).p_memsz);
+    	fread(buffer_ptr, (Pro_header[phnum]).p_memsz, 1, file_elf);
+    	fwrite(buffer_ptr, (Pro_header[phnum]).p_memsz, 1, image); 	
+    	free(buffer_ptr);
+    }
+    free(Elf_header);
+    free(Pro_header);	
+}
+
 Elf32_Phdr *read_exec_file(FILE *opfile)
 {
     FILE *file_elf = opfile;
@@ -63,6 +97,7 @@ void write_kernel(FILE *image, FILE *knfile, Elf32_Phdr *Phdr, int kernelsz)
 {
 	fseek(image, 512, SEEK_SET);
 	fseek(knfile, 0, SEEK_SET);
+	//write_filesegement_image_kernel(image, knfile, Phdr);
 	write_filesegement_image(image, knfile, Phdr);
 }
 //在image上直接更改第一扇区的最后的值为kernel扇区数

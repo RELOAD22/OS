@@ -34,9 +34,10 @@ void scheduler(void)
     item_t * item = ready_queue.head;
     item_t * item_max_priority = ready_queue.head;
     int temp_priority = 0; int count = 0;
-    check_sleeping();
-    if(queue_is_empty(&ready_queue))
-        return; 
+    //check_sleeping();
+
+    //if(queue_is_empty(&ready_queue))
+       // return; 
 
 	if (current_running&&current_running->status != TASK_BLOCKED){
         queue_push(&ready_queue, current_running);
@@ -104,7 +105,7 @@ void do_block(queue_t *queue)
     queue_push(queue, current_running);
 	current_running->status = TASK_BLOCKED;
     //调用调度器，注意此时current所指的线程不会放至就绪队列
-    do_scheduler();
+    scheduler();
 }
 
 void do_unblock_one(queue_t *queue)
@@ -118,4 +119,9 @@ void do_unblock_one(queue_t *queue)
 void do_unblock_all(queue_t *queue)
 {
     // unblock all task in the queue
+    while(!queue_is_empty(queue)){
+	    pcb_t *blockeditem = queue_dequeue(queue);
+	    blockeditem->status = TASK_READY;
+	    queue_push(&ready_queue, blockeditem);        
+    }
 }

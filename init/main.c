@@ -93,7 +93,7 @@ static void init_pcb()
 	}*/
 
 	//task4 sched2_tasks
-	
+	/*
 	for( i = 0; i < num_sched2_tasks; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
@@ -103,10 +103,10 @@ static void init_pcb()
 		pcb[i].user_context.cp0_epc = 0x0;
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
-	}
+	}*/
 
 	//task4 lock_tasks
-	/*
+	
 	for( i = 0; i < num_lock_tasks; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
@@ -116,7 +116,7 @@ static void init_pcb()
 		pcb[i].user_context.cp0_epc = 0x0;
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
-	}*/
+	}
 	printk("\npriority:");
 	for(count = 0; count < NUM_MAX_TASK; count++){
 		pcb[count].priority = priority_weight[count];

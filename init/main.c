@@ -46,7 +46,6 @@ queue_t block_queue;
 pcb_t *current_running;
 pid_t process_id;
 pcb_t pcb[NUM_MAX_TASK];
-int priority_weight[NUM_MAX_TASK]= {4,4,8,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 extern uint32_t time_elapsed;	//time.c
 
@@ -57,72 +56,31 @@ static void init_pcb()
 
 	int stack_temp = STACK_BASE; int i = 0;
 	int count;
-	//优先级调度
-	/*
-	for( i = 0; i < num_sched1_tasks; ++i){
-		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
-		pcb[i].pid = process_id++;
-		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = sched1_tasks[i]->entry_point;
-		pcb[i].status = TASK_READY;
-		pcb[i].user_context.cp0_status = 0x00008001;
-		pcb[i].user_context.cp0_epc = 0x0;
-		stack_temp -= STACK_SIZE;
-		queue_push(&ready_queue, &pcb[i]);
-	}*/
-	/*
-	for(; i < num_sched1_tasks + num_lock_tasks; ++i){
-		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
-		pcb[i].pid = process_id++;
-		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = lock_tasks[i - num_sched1_tasks]->entry_point;
-		pcb[i].status = TASK_READY;
-		stack_temp -= STACK_SIZE;
-		queue_push(&ready_queue, &pcb[i]);
-	}*/
-
-	//task4 timer_tasks
-	/*
-	for( i = 0; i < num_timer_tasks; ++i){
-		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
-		pcb[i].pid = process_id++;
-		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = timer_tasks[i]->entry_point;
-		pcb[i].status = TASK_READY;
-		pcb[i].user_context.cp0_status = 0x00008001;
-		pcb[i].user_context.cp0_epc = 0x0;
-		stack_temp -= STACK_SIZE;
-		queue_push(&ready_queue, &pcb[i]);
-	}*/
-
-	//task4 sched2_tasks
-	/*
-	for( i = 0; i < num_sched2_tasks; ++i){
-		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
-		pcb[i].pid = process_id++;
-		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = sched2_tasks[i]->entry_point;
-		pcb[i].status = TASK_READY;
-		pcb[i].user_context.cp0_status = 0x00008001;
-		pcb[i].user_context.cp0_epc = 0x0;
-		stack_temp -= STACK_SIZE;
-		queue_push(&ready_queue, &pcb[i]);
-	}*/
-
-	//task4 lock_tasks
 	
-	for( i = 0; i < num_lock_tasks; ++i){
+	//init shell pcb
+	
+	pcb[1].user_stack_top = pcb[1].user_context.regs[29] = stack_temp;
+	process_id = 1;
+	pcb[1].pid = process_id++;
+	pcb[1].user_context.regs[31] = pcb[1].user_context.pc = task_shell.entry_point;
+	pcb[1].status = TASK_READY;
+	pcb[1].user_context.cp0_status = 0x00008001;
+	pcb[1].user_context.cp0_epc = 0x0;
+	stack_temp -= STACK_SIZE;
+	queue_push(&ready_queue, &pcb[1]);
+	
+
+	for( i = 2; i < 4; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
-		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = lock_tasks[i]->entry_point;
+		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = lock_tasks[i - num_lock_tasks]->entry_point;
 		pcb[i].status = TASK_READY;
 		pcb[i].user_context.cp0_status = 0x00008001;
 		pcb[i].user_context.cp0_epc = 0x0;
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}
-	printk("\npriority:");
-	for(count = 0; count < NUM_MAX_TASK; count++){
-		pcb[count].priority = priority_weight[count];
-		printk("%d ", priority_weight[count]);
-	}
-	printk("\n");
+	printk("%dtasks in queue\n", i - 1);
 }
 
 static void init_exception_handler()
@@ -180,7 +138,7 @@ void __attribute__((section(".entry_function"))) _start(void)
 	// init screen (QAQ)
 	init_screen();
 	printk("> [INIT] SCREEN initialization succeeded.\n");
-	screen_clear();
+	screen_clear(0,0);
 	enable_interrupt();
 
 	init_scheduler();

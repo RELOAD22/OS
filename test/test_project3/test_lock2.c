@@ -1,4 +1,4 @@
-#include "test2.h"
+#include "test3.h"
 #include "lock.h"
 #include "stdio.h"
 #include "syscall.h"
@@ -66,6 +66,12 @@ void lock_task1(void)
 #ifdef MUTEX_LOCK
                 mutex_lock_release(&mutex_lock);
 #endif
+                for (i = 0; i < 2000; i++)
+                {
+                        sys_move_cursor(1, print_location);
+                        printf("> 1111111111111111111 lock and running.(%d)\n", i);
+                }
+
         }
 }
 
@@ -121,6 +127,11 @@ void lock_task2(void)
 #ifdef MUTEX_LOCK
                 mutex_lock_release(&mutex_lock);
 #endif       
+                for (i = 0; i < 2000; i++)
+                {
+                        sys_move_cursor(1, print_location);
+                        printf("> 2222222222222222222 lock and running.(%d)\n", i);
+                }
         }
 
 }

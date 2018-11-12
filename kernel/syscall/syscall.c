@@ -60,3 +60,8 @@ void mutex_lock_release(mutex_lock_t *lock)
 {
     invoke_syscall(SYSCALL_MUTEX_LOCK_RELEASE, (int)lock, IGNORE, IGNORE);
 }
+
+void sys_ps()
+{
+    invoke_syscall(SYSCALL_PS, IGNORE, IGNORE, IGNORE);    
+}

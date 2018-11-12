@@ -32,6 +32,7 @@
 #include "common.h"
 #include "syscall.h"
 #include "time.h"
+#include "shell.h"
 
 #define STACK_BASE  0xa0f00000
 #define STACK_SIZE 0x100000
@@ -112,6 +113,7 @@ static void init_syscall(void)
 	syscall[SYSCALL_MUTEX_LOCK_INIT] = do_mutex_lock_init;
 	syscall[SYSCALL_MUTEX_LOCK_ACQUIRE] = do_mutex_lock_acquire;
 	syscall[SYSCALL_MUTEX_LOCK_RELEASE] = do_mutex_lock_release;
+	syscall[SYSCALL_PS] = do_ps;
 }
 
 // jump from bootloader.

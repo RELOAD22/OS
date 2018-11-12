@@ -51,6 +51,8 @@
 #define SYSCALL_MUTEX_LOCK_ACQUIRE 31
 #define SYSCALL_MUTEX_LOCK_RELEASE 32
 
+#define SYSCALL_PS 40
+
 /* syscall function pointer */
 int (*syscall[NUM_SYSCALLS])();
 
@@ -70,5 +72,7 @@ void sys_reflush();
 void mutex_lock_init(mutex_lock_t *);
 void mutex_lock_acquire(mutex_lock_t *);
 void mutex_lock_release(mutex_lock_t *);
+
+void sys_ps();
 
 #endif

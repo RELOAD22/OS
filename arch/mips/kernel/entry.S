@@ -178,7 +178,7 @@ END(copy_code)
 
 NESTED(enable_interrupt, 0, ra)
     mtc0    zero, CP0_COUNT
-	li      k0, 0x20000
+	li      k0, 0x10000000
     mtc0    k0, CP0_COMPARE
 
     mfc0    k0, CP0_STATUS
@@ -241,7 +241,7 @@ NESTED(handle_int, 0, sp)
 1:
 	#恢复计时器
     mtc0    zero, CP0_COUNT
-	li      k0, 0x5000000
+	li      k0, 0x2000000
     mtc0    k0, CP0_COMPARE
 
     RESTORE_CONTEXT(USER)

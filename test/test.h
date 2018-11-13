@@ -28,10 +28,10 @@
 
 #include "test3.h"
 #include "sched.h"
-/*
+
 extern struct task_info *test_tasks[16];
 extern int num_test_tasks;
-*/
+
 extern struct task_info *lock_tasks[16];
 extern int num_lock_tasks;
 

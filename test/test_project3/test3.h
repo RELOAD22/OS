@@ -8,12 +8,12 @@ void test_shell(void);
 //just for test shell
 void lock_task1(void);
 void lock_task2(void);
-/*
+
 // [1-4]
 void ready_to_exit_task(void);
 void wait_lock_task();
 void wait_exit_task();
-
+/*
 // [8-10]
 void producer_task(void);
 void consumer_task1(void);

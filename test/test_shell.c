@@ -16,14 +16,20 @@ static char read_uart_ch(void)
     }
     return ch;
 }
-
+//shell进程
+struct task_info task_shell = {(uint32_t)&test_shell, USER_THREAD};
+//testlock进程
 struct task_info task2_4 = {(uint32_t)&lock_task1, USER_THREAD};
 struct task_info task2_5 = {(uint32_t)&lock_task2, USER_THREAD};
 struct task_info *lock_tasks[16] = {&task2_4, &task2_5};
-
 int num_lock_tasks = 2;
-
-struct task_info task_shell = {(uint32_t)&test_shell, USER_THREAD};
+//test进程
+struct task_info task1 = {(uint32_t)&ready_to_exit_task, USER_PROCESS};
+struct task_info task2 = {(uint32_t)&wait_lock_task, USER_PROCESS};
+struct task_info task3 = {(uint32_t)&wait_exit_task, USER_PROCESS};
+struct task_info *test_tasks[16] = {&task1, &task2, &task3,
+                                           };
+int num_test_tasks = 3;
 
 char command[20] = {0};   //命令数组
 int command_put_index = 0;  //当前命令数组有效下标

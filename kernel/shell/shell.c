@@ -7,8 +7,13 @@
 void do_ps(){
     pcb_t *pcd_check = ready_queue.head;
     int count = 0;
-    if(ready_queue.head == NULL) return;
+
     vt100_move_cursor(screen_cursor_x, screen_cursor_y+1);
+    if(ready_queue.head == NULL) {
+        printk("no ready tasks in queue!");
+        screen_cursor_y += 1;
+        return;
+    }    
     do{
         printk("[%d] pid : %d status: ",count, pcd_check->pid);
         if(pcd_check->status == TASK_READY)
@@ -41,6 +46,7 @@ void do_exit(){
     current_running->killed = 1;
     //唤醒所有等待当前进程结束的进程
     do_unblock_all(&current_running->wait);
+    scheduler();
 }
 
 void do_wait(pid){

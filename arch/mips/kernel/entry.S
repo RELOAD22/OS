@@ -27,12 +27,13 @@ LEAF(asm_start)
     mtc0    t0, CP0_CONFIG
     
     jr  ra
+	nop
 END(asm_start)
 
 .macro SAVE_CONTEXT offset
 	lw     k0, current_running
 	addiu  k0, k0, \offset	
-	sw AT, 4(k0)
+	#sw AT, 4(k0)
 	sw v0, 8(k0)
 	sw v1, 12(k0)
 	sw a0, 16(k0)
@@ -86,7 +87,7 @@ END(asm_start)
 .macro RESTORE_CONTEXT offset
 	lw     k0, current_running
 	addiu  k0, k0, \offset
-	lw AT, 4(k0)
+	#lw AT, 4(k0)
 	lw v0, 8(k0)
 	lw v1, 12(k0)
 	lw a0, 16(k0)
@@ -140,25 +141,30 @@ END(asm_start)
 
 NESTED(init_scheduler, 0, ra)
     jal     scheduler
+	nop
     RESTORE_CONTEXT(USER)
 	jr      ra
+	nop
 END(init_scheduler)
 
 NESTED(do_scheduler, 0, ra)
     SAVE_CONTEXT(USER)
     jal     scheduler
+	nop
     RESTORE_CONTEXT(USER)
     jr      ra
+	nop
 END(do_scheduler)
 
-NESTED(reset_CPCOUNT, 0, ra)
+LEAF(reset_CPCOUNT)
     mtc0    zero, CP0_COUNT
 	li      k0, 0x2000000
     mtc0    k0, CP0_COMPARE
     jr  ra
+	nop
 END(reset_CPCOUNT)
 
-NESTED(copy_code, 0, ra)
+LEAF(copy_code)
     CLI
 	
 	li      t2, 0x0
@@ -172,8 +178,10 @@ loop:
 	sw      t3, 0(t1)
 	add     t2, t2, 0x4
 	ble     t0, t4, loop
+	nop
 
 	jr      ra
+	nop
 END(copy_code)
 
 NESTED(enable_interrupt, 0, ra)
@@ -185,6 +193,7 @@ NESTED(enable_interrupt, 0, ra)
     ori     k0, 0x8001
     mtc0    k0, CP0_STATUS	
     jr  ra
+	nop
 END(enable_interrupt)
 
 .global exception_handler_begin
@@ -202,8 +211,10 @@ exception_handler_begin:
 	mfc0    k0, CP0_CAUSE
 	and     k0, 0x7c
 	beqz    k0, 1f	#判断是否为中断，若是则跳转，否则继续执行
+	nop
 	and     k0, 0x1f
 	beqz    k0, 2f	#判断是否为系统调用，若是则跳转，否则继续执行
+	nop
 
 	RESTORE_CONTEXT(USER)
 	#开中断
@@ -212,6 +223,7 @@ exception_handler_begin:
 	nop
 1:
 	jal     handle_int
+	nop
 2:
 	li      k1, 0x4
     mfc0    k0, CP0_EPC
@@ -219,6 +231,7 @@ exception_handler_begin:
 	mtc0    k0, CP0_EPC
     SAVE_CONTEXT(USER)
 	jal     handle_syscall
+	nop
 exception_handler_end:
 END(exception_handler_entry)
 
@@ -231,14 +244,15 @@ NESTED(handle_int, 0, sp)
 	nop
 
 	SAVE_CONTEXT(KERNEL)
-	mfc0 a0, CP0_STATUS
-	mfc0 a1, CP0_CAUSE	
-	addiu sp,sp,-8
+	#mfc0 a0, CP0_STATUS
+	#mfc0 a1, CP0_CAUSE	
+	#addiu sp,sp,-8
 	jal interrupt_helper
-	addiu sp,sp,8
+	nop
+	#addiu sp,sp,8
 	RESTORE_CONTEXT(KERNEL)
 
-1:
+1:	
 	#恢复计时器
     mtc0    zero, CP0_COUNT
 	li      k0, 0x2000000
@@ -249,6 +263,7 @@ NESTED(handle_int, 0, sp)
 	li      k1, 0x0
 	mfc0    k0, CP0_EPC
 	bne     k0, k1, 2f
+	nop
 	mtc0    ra, CP0_EPC
 2:
 	#开中断
@@ -261,6 +276,7 @@ NESTED(handle_syscall, 0, sp)
     // system call handler
 	SAVE_CONTEXT(KERNEL)
 	jal     system_call_helper
+	nop
 	RESTORE_CONTEXT(KERNEL)
 
     RESTORE_CONTEXT(USER)
@@ -269,6 +285,7 @@ NESTED(handle_syscall, 0, sp)
 	li      k1, 0x0
 	mfc0    k0, CP0_EPC
 	bne     k0, k1, 3f
+	nop
 	mtc0    ra, CP0_EPC
 3:
 	#开中断
@@ -279,4 +296,7 @@ END(handle_syscall)
 
 NESTED(handle_other, 0, sp)
     // other exception handler
+	STI
+	eret
+	nop	
 END(handle_other)

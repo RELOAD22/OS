@@ -25,8 +25,8 @@ int num_lock_tasks = 2;
 
 struct task_info task_shell = {(uint32_t)&test_shell, USER_THREAD};
 
-char command[20];   //命令数组
-int command_put_index;  //当前命令数组有效下标
+char command[20] = {0};   //命令数组
+int command_put_index = 0;  //当前命令数组有效下标
 int shell_location = 16;    //shell开始位置
 int shell_location_new = 16;    //打印位置
 
@@ -58,12 +58,19 @@ void clear_line(){
 }
 void clear_func1(){
     int i = 0;
+
+    for(i = shell_location + 2; i <= shell_location_new + 1; ++i){
+            vt100_move_cursor(0, i);
+            printk("                                                          ");
+    }
+
     for(i = shell_location + 1; i <= shell_location_new; ++i){
             sys_move_cursor(0, i);
-            printf("                                                          ");
+            printf("                                                             ");
     }
     sys_move_cursor(0, shell_location + 1); 
 }
+
 void clear_func2(){
     ;
 }
@@ -83,7 +90,7 @@ void do_command(){
     else if(strcmp(command, clear_cod) == 0){
         //清屏命令
         clear_func1();
-        clear_func2();
+        //clear_func2();
     }
     else{  
         //输入错误命令
@@ -113,6 +120,12 @@ void do_command(){
 void test_shell()
 {
     int i = 0;
+    command_put_index = 0;
+    for(i = 0; i < 20; ++i){
+        command[i] = 0;         
+    }
+    shell_location = 16;
+    shell_location_new = 16;
     sys_move_cursor(0, shell_location);
     sys_move_cursor(0, shell_location);
     printf("----------------command---------------\n");

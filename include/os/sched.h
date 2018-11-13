@@ -97,7 +97,11 @@ typedef struct pcb
 
     mutex_lock_t *lock[10];
     int lock_count;
-    
+
+    int killed; //0-未被终结  1-已被终结
+
+    queue_t wait;   //等待当前进程结束的进程队列
+
     int priority;
 } pcb_t;
 

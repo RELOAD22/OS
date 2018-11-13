@@ -68,6 +68,8 @@ static void init_pcb()
 	pcb[1].user_context.cp0_status = 0x00008001;
 	pcb[1].user_context.cp0_epc = pcb[i].user_context.regs[31];
 	pcb[1].lock_count = 0;
+	pcb[1].killed = 0;
+    queue_init(&(pcb[1].wait));
 	stack_temp -= STACK_SIZE;
 	queue_push(&ready_queue, &pcb[1]);
 	
@@ -80,6 +82,8 @@ static void init_pcb()
 		pcb[i].user_context.cp0_status = 0x00008001;
 		pcb[i].user_context.cp0_epc = pcb[i].user_context.regs[31];
 		pcb[i].lock_count = 0;
+		pcb[i].killed = 0;
+	    queue_init(&(pcb[i].wait));
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}
@@ -116,6 +120,8 @@ static void init_syscall(void)
 	syscall[SYSCALL_MUTEX_LOCK_ACQUIRE] = do_mutex_lock_acquire;
 	syscall[SYSCALL_MUTEX_LOCK_RELEASE] = do_mutex_lock_release;
 	syscall[SYSCALL_PS] = do_ps;
+	syscall[SYSCALL_EXIT] = do_exit;
+	syscall[SYSCALL_WAIT] = do_wait;
 }
 
 // jump from bootloader.

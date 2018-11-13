@@ -5,5 +5,7 @@
 #include "queue.h"
 
 void do_ps(void);
+void do_exit(void);
+void do_wait(int);
 
 #endif

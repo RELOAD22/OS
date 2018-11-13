@@ -65,3 +65,13 @@ void sys_ps()
 {
     invoke_syscall(SYSCALL_PS, IGNORE, IGNORE, IGNORE);    
 }
+
+void sys_exit()
+{
+    invoke_syscall(SYSCALL_EXIT, IGNORE, IGNORE, IGNORE);    
+}
+
+void sys_waitpid(int pid)
+{
+    invoke_syscall(SYSCALL_WAIT, pid, IGNORE, IGNORE);    
+}

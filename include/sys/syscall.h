@@ -52,6 +52,8 @@
 #define SYSCALL_MUTEX_LOCK_RELEASE 32
 
 #define SYSCALL_PS 40
+#define SYSCALL_EXIT 41
+#define SYSCALL_WAIT 42
 
 /* syscall function pointer */
 int (*syscall[NUM_SYSCALLS])();
@@ -74,5 +76,7 @@ void mutex_lock_acquire(mutex_lock_t *);
 void mutex_lock_release(mutex_lock_t *);
 
 void sys_ps();
+void sys_exit();
+void sys_waitpid();
 
 #endif

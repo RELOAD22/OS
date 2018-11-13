@@ -36,19 +36,15 @@ void scheduler(void)
 	    current_running->cursor_y = screen_cursor_y;
     }
     
-    item_t * item = ready_queue.head;
-    item_t * item_max_priority = ready_queue.head;
-    int temp_priority = 0; int count = 0;
     //check_sleeping();
 
-    //if(queue_is_empty(&ready_queue))
-       // return; 
-
-	if (current_running&&current_running->status != TASK_BLOCKED){
+	if (current_running&&current_running->status != TASK_BLOCKED && current_running->killed == 0){
         queue_push(&ready_queue, current_running);
 	    current_running->status = TASK_READY;
     }
 
+    if(queue_is_empty(&ready_queue))
+        return; 
 
     current_running = queue_dequeue(&ready_queue);
 	current_running->status = TASK_RUNNING;

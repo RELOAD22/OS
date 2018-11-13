@@ -102,6 +102,10 @@ typedef struct pcb
 
     queue_t wait;   //等待当前进程结束的进程队列
 
+    int block_time;
+
+    int sleep_time;
+
     int priority;
 } pcb_t;
 

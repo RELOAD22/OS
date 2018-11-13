@@ -100,3 +100,24 @@ void semaphore_down(semaphore_t *s)
 {
     invoke_syscall(SYSCALL_SEMAPHORE_DOWN, s, IGNORE, IGNORE);
 }
+
+void condition_init(condition_t *condition)
+{
+    invoke_syscall(SYSCALL_CONDITION_INIT, condition, IGNORE, IGNORE);
+}
+
+void condition_wait(mutex_lock_t *lock, condition_t *condition)
+{
+    invoke_syscall(SYSCALL_CONDITION_WAIT, lock, condition, IGNORE);
+    mutex_lock_acquire(lock);
+}
+
+void condition_signal(condition_t *condition)
+{
+    invoke_syscall(SYSCALL_CONDITION_SIGNAL, condition, IGNORE, IGNORE);
+}
+
+void condition_broadcast(condition_t *condition)
+{
+    invoke_syscall(SYSCALL_CONDITION_BROADCAST, condition, IGNORE, IGNORE);
+}

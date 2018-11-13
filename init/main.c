@@ -125,7 +125,12 @@ static void init_syscall(void)
 	syscall[SYSCALL_KILL] = do_kill;
 	syscall[SYSCALL_SEMAPHORE_INIT] = do_semaphore_init;
 	syscall[SYSCALL_SEMAPHORE_UP] = do_semaphore_up;
-	syscall[SYSCALL_SEMAPHORE_DOWN] = do_semaphore_down;	
+	syscall[SYSCALL_SEMAPHORE_DOWN] = do_semaphore_down;
+	syscall[SYSCALL_CONDITION_INIT] = do_condition_init;	
+	syscall[SYSCALL_CONDITION_WAIT] = do_condition_wait;
+	syscall[SYSCALL_CONDITION_SIGNAL] = do_condition_signal;
+	syscall[SYSCALL_CONDITION_BROADCAST] = do_condition_broadcast;
+
 }
 
 // jump from bootloader.

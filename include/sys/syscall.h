@@ -56,6 +56,11 @@
 #define SYSCALL_SEMAPHORE_UP 34
 #define SYSCALL_SEMAPHORE_DOWN 35
 
+#define SYSCALL_CONDITION_INIT 36	
+#define SYSCALL_CONDITION_WAIT 37
+#define SYSCALL_CONDITION_SIGNAL 38
+#define SYSCALL_CONDITION_BROADCAST 39
+
 #define SYSCALL_PS 40
 #define SYSCALL_EXIT 41
 #define SYSCALL_WAIT 42
@@ -85,6 +90,11 @@ void mutex_lock_release(mutex_lock_t *);
 void semaphore_init(semaphore_t *, int);
 void semaphore_up(semaphore_t *s);
 void semaphore_down(semaphore_t *s);
+
+void condition_init(condition_t *condition);
+void condition_wait(mutex_lock_t *lock, condition_t *condition);
+void condition_signal(condition_t *condition);
+void condition_broadcast(condition_t *condition);
 
 void sys_ps();
 void sys_exit();

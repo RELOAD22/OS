@@ -19,11 +19,22 @@ extern uint32_t time_elapsed;
 extern int priority_weight[];
 
 static void check_sleeping()
-{
-    if(time_elapsed - time_place > wait_time && !queue_is_empty(&block_queue)){
-        pcb_t *blockeditem = queue_dequeue(&block_queue);
-	    blockeditem->status = TASK_READY;
-	    queue_push(&ready_queue, blockeditem);
+{    
+    pcb_t *temp_pcb;
+    pcb_t *temp_temp_pcb;
+
+    if(queue_is_empty(&block_queue))
+        return;
+
+    for(temp_pcb = block_queue.head; temp_pcb != NULL; ){
+        if(time_elapsed - temp_pcb->block_time > temp_pcb->sleep_time){
+            temp_temp_pcb = queue_remove(&block_queue, temp_pcb);
+            temp_pcb->status = TASK_READY;
+	        queue_push(&ready_queue, temp_pcb);
+            temp_pcb = temp_temp_pcb;
+        }else{
+            temp_pcb = temp_pcb->next;
+        }
     }
 }
 
@@ -95,8 +106,9 @@ void scheduler(void)
 
 void do_sleep(int sleep_time)
 {
-    wait_time = sleep_time * 300;
-    time_place = time_elapsed;
+    current_running->sleep_time = sleep_time * 300;
+    current_running->block_time = time_elapsed;
+
     // block the current_running task into the queue
     queue_push(&block_queue, current_running);
 	current_running->status = TASK_BLOCKED;

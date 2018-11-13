@@ -13,12 +13,12 @@ void lock_task2(void);
 void ready_to_exit_task(void);
 void wait_lock_task();
 void wait_exit_task();
-/*
+
 // [8-10]
 void producer_task(void);
 void consumer_task1(void);
 void consumer_task2(void);
-*/
+
 // [8-10]
 void semaphore_add_task1(void);
 void semaphore_add_task2(void);

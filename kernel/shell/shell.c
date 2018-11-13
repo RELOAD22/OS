@@ -4,6 +4,9 @@
 #include "shell.h"
 #include "screen.h"
 
+#define STACK_BASE  0xa0f00000
+#define STACK_SIZE 0x100000
+
 void do_ps(){
     pcb_t *pcd_check = ready_queue.head;
     int count = 0;
@@ -49,8 +52,23 @@ void do_exit(){
     scheduler();
 }
 
-void do_wait(pid){
+void do_wait(int pid){
     if(pcb[pid].killed == 0){
         do_block(&(pcb[pid].wait));
     }
+}
+
+void do_spawn(task_info_t *task){
+    int i = process_id;
+	pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
+	pcb[i].pid = process_id++;
+	pcb[i].user_context.regs[31] = pcb[i].user_context.pc = task->entry_point;
+	pcb[i].status = TASK_READY;
+	pcb[i].user_context.cp0_status = 0x00008001;
+	pcb[i].user_context.cp0_epc = pcb[i].user_context.regs[31];
+	pcb[i].lock_count = 0;
+	pcb[i].killed = 0;
+	queue_init(&(pcb[i].wait));
+	stack_temp -= STACK_SIZE;
+	queue_push(&ready_queue, &pcb[i]);    
 }

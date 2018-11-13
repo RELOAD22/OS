@@ -75,3 +75,8 @@ void sys_waitpid(int pid)
 {
     invoke_syscall(SYSCALL_WAIT, pid, IGNORE, IGNORE);    
 }
+
+void sys_spawn(task_info_t *task)
+{
+    invoke_syscall(SYSCALL_SPAWN, task, IGNORE, IGNORE);    
+}

@@ -31,6 +31,7 @@
 #include "type.h"
 #include "sync.h"
 #include "queue.h"
+#include "sched.h"
 
 #define IGNORE 0
 #define NUM_SYSCALLS 64
@@ -54,6 +55,7 @@
 #define SYSCALL_PS 40
 #define SYSCALL_EXIT 41
 #define SYSCALL_WAIT 42
+#define SYSCALL_SPAWN 43
 
 /* syscall function pointer */
 int (*syscall[NUM_SYSCALLS])();
@@ -77,6 +79,7 @@ void mutex_lock_release(mutex_lock_t *);
 
 void sys_ps();
 void sys_exit();
-void sys_waitpid();
+void sys_waitpid(int);
+void sys_spawn(task_info_t *);
 
 #endif

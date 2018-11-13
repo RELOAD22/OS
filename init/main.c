@@ -33,7 +33,7 @@
 #include "syscall.h"
 #include "time.h"
 #include "shell.h"
-
+//注意在shell.c中也有该宏定义
 #define STACK_BASE  0xa0f00000
 #define STACK_SIZE 0x100000
 
@@ -47,6 +47,7 @@ queue_t block_queue;
 pcb_t *current_running;
 pid_t process_id;
 pcb_t pcb[NUM_MAX_TASK];
+int stack_temp;
 
 extern uint32_t time_elapsed;	//time.c
 
@@ -55,9 +56,9 @@ static void init_pcb()
 	queue_init(&ready_queue);
 	queue_init(&block_queue);
 
-	int stack_temp = STACK_BASE; int i = 0;
+	stack_temp = STACK_BASE; int i = 0;
 	int count;
-	
+	process_id = 1;
 	//init shell pcb
 	
 	pcb[1].user_stack_top = pcb[1].user_context.regs[29] = stack_temp;
@@ -72,8 +73,21 @@ static void init_pcb()
     queue_init(&(pcb[1].wait));
 	stack_temp -= STACK_SIZE;
 	queue_push(&ready_queue, &pcb[1]);
-	
 
+	for( i = 2; i < 3; ++i){
+		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
+		pcb[i].pid = process_id++;
+		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = test_tasks[i - 2]->entry_point;
+		pcb[i].status = TASK_READY;
+		pcb[i].user_context.cp0_status = 0x00008001;
+		pcb[i].user_context.cp0_epc = pcb[i].user_context.regs[31];
+		pcb[i].lock_count = 0;
+		pcb[i].killed = 0;
+	    queue_init(&(pcb[i].wait));
+		stack_temp -= STACK_SIZE;
+		queue_push(&ready_queue, &pcb[i]);
+	}	
+/*
 	for( i = 2; i < 5; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
@@ -87,7 +101,7 @@ static void init_pcb()
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}
-	printk("%dtasks in queue\n", i - 1);
+	printk("%dtasks in queue\n", i - 1);*/
 }
 
 static void init_exception_handler()
@@ -122,6 +136,7 @@ static void init_syscall(void)
 	syscall[SYSCALL_PS] = do_ps;
 	syscall[SYSCALL_EXIT] = do_exit;
 	syscall[SYSCALL_WAIT] = do_wait;
+	syscall[SYSCALL_SPAWN] = do_spawn;
 }
 
 // jump from bootloader.

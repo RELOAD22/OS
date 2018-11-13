@@ -125,6 +125,7 @@ extern pid_t process_id;
 extern pcb_t pcb[NUM_MAX_TASK];
 extern uint32_t initial_cp0_status;
 extern int priority_weight[NUM_MAX_TASK];
+extern int stack_temp;
 
 void printinfo(void);
 void do_scheduler(void);

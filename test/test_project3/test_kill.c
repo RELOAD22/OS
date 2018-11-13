@@ -4,6 +4,7 @@
 #include "sched.h"
 #include "stdio.h"
 #include "syscall.h"
+#include "test.h"
 
 static char blank[] = {"                                                "};
 
@@ -18,8 +19,8 @@ void ready_to_exit_task()
     mutex_lock_acquire(&lock1);
     mutex_lock_acquire(&lock2);
 
-    // sys_spawn(&task1);
-    // sys_spawn(&task2);
+    sys_spawn(&task2);
+    sys_spawn(&task3);
 
     for (i = 0; i < 5000; i++)
     {

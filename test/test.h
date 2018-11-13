@@ -37,4 +37,8 @@ extern int num_lock_tasks;
 
 extern struct task_info task_shell;
 
+extern struct task_info task1;
+extern struct task_info task2;
+extern struct task_info task3;
+
 #endif

@@ -37,7 +37,7 @@ int shell_location = 16;    //shell开始位置
 int shell_location_new = 16;    //打印位置
 
 int valid_input(char ch){
-    if(ch>='a' && ch <= 'z'){
+    if((ch>='a' && ch <= 'z')||(ch>='0' && ch <= '9')|| ch == ' '){
         command[command_put_index] = ch;
         command_put_index++;
     }
@@ -78,10 +78,63 @@ void clear_func(){
     sys_move_cursor(0, shell_location + 1); 
 }
 
+void exec_func(int test_tasks_num){
+    sys_spawn(test_tasks[test_tasks_num]);
+    printf("exec process[%d]", test_tasks_num);
+}
+
+int str2int(const char *str)
+{
+    int temp = 0;
+    const char *ptr = str;  //ptr保存str字符串开头
+
+    if (*str == '-' || *str == '+')  //如果第一个字符是正负号，则移到下一个字符
+        str++;
+
+    while(*str != 0)
+    {
+        if ((*str < '0') || (*str > '9'))  //如果当前字符不是数                        //则退出循环
+            break;
+        temp = temp * 10 + (*str - '0'); //如果当前字符是数字则计算数值
+        str++;      //移到下一个字符
+    }   
+    if (*ptr == '-')     //如果字符串是以“-”开头，则转换成其相反数
+        temp = -temp;
+
+    return temp;
+}
+
+char split_command[3][20] = {0};   //命令  分割用
+
+int command_split(const char *str){
+    //分割命令,返回命令的个数
+    int total_index;
+    int cod_index = 0;
+    int codc_index = 0;
+    for(total_index = 0; total_index < command_put_index; ++total_index){
+        if(command[total_index] == ' '){
+            split_command[cod_index][codc_index] = 0;
+            cod_index++;
+            codc_index = 0;
+            continue;
+        }
+        split_command[cod_index][codc_index] = command[total_index];
+        ++codc_index;
+    }
+    split_command[cod_index][codc_index] = 0;
+
+    return cod_index + 1;
+}
 
 void do_command(){
     char *ps_cod = "ps";
     char *clear_cod = "clear";
+    char *exec_cod = "exec";
+    int multicod = 0;
+
+    if(command_split(command) > 1){
+        multicod = 1;
+    }
     //移至新一行运行
     shell_location_new++;
     sys_move_cursor(0, shell_location_new);
@@ -95,6 +148,10 @@ void do_command(){
         //清屏命令
         clear_func();
     }
+    else if(multicod && (strcmp(split_command[0], exec_cod) == 0)){
+        //exec命令
+        exec_func(str2int(split_command[1]));
+    }
     else{  
         //输入错误命令
         printf("invalid command.please try again.");
@@ -104,7 +161,7 @@ void do_command(){
     if(y_change > 0){
         shell_location_new += y_change + 1;
         sys_move_cursor(0, shell_location_new);
-    }else if(y_change = 0){
+    }else if(y_change == 0){
         shell_location_new += 1;
         sys_move_cursor(0, shell_location_new);        
     }else {

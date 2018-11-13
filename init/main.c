@@ -73,7 +73,7 @@ static void init_pcb()
     queue_init(&(pcb[1].wait));
 	stack_temp -= STACK_SIZE;
 	queue_push(&ready_queue, &pcb[1]);
-
+/*
 	for( i = 2; i < 3; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
@@ -86,7 +86,7 @@ static void init_pcb()
 	    queue_init(&(pcb[i].wait));
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
-	}	
+	}	*/
 /*
 	for( i = 2; i < 5; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;

@@ -14,7 +14,6 @@ void do_ps(){
     vt100_move_cursor(screen_cursor_x, screen_cursor_y+1);
     if(ready_queue.head == NULL) {
         printk("no ready tasks in queue!");
-        screen_cursor_y += 1;
         return;
     }    
     do{
@@ -26,7 +25,6 @@ void do_ps(){
         pcd_check = pcd_check->next;
         count++;
         if(ready_queue.tail == ready_queue.head){
-            screen_cursor_y += count;
             return;
         }
     }while(pcd_check != ready_queue.tail);

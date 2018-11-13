@@ -19,8 +19,8 @@ void ready_to_exit_task()
     mutex_lock_acquire(&lock1);
     mutex_lock_acquire(&lock2);
 
-    sys_spawn(&task2);
-    sys_spawn(&task3);
+    //sys_spawn(&task2);
+    //sys_spawn(&task3);
 
     for (i = 0; i < 5000; i++)
     {

@@ -47,10 +47,14 @@ struct task_info task6 = {(uint32_t)&semaphore_add_task3, USER_PROCESS};
 struct task_info task7 = {(uint32_t)&producer_task, USER_PROCESS};
 struct task_info task8 = {(uint32_t)&consumer_task1, USER_PROCESS};
 struct task_info task9 = {(uint32_t)&consumer_task2, USER_PROCESS};
+struct task_info task10 = {(uint32_t)&barrier_task1, USER_PROCESS};
+struct task_info task11 = {(uint32_t)&barrier_task2, USER_PROCESS};
+struct task_info task12 = {(uint32_t)&barrier_task3, USER_PROCESS};
 
 struct task_info *test_tasks[16] = {&task1, &task2, &task3,
                                     &task4, &task5, &task6,
                                     &task7, &task8, &task9,
+                                    &task10, &task11, &task12,
                                            };
 int num_test_tasks = 3;
 

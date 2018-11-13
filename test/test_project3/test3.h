@@ -23,12 +23,12 @@ void consumer_task2(void);
 void semaphore_add_task1(void);
 void semaphore_add_task2(void);
 void semaphore_add_task3(void);
-/*
+
 // [8 -10]
 void barrier_task1(void);
 void barrier_task2(void);
 void barrier_task3(void);
-
+/*
 // [11-14]
 void mbox_task1(void);
 void mbox_task2(void);

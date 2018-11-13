@@ -121,3 +121,13 @@ void condition_broadcast(condition_t *condition)
 {
     invoke_syscall(SYSCALL_CONDITION_BROADCAST, condition, IGNORE, IGNORE);
 }
+
+void barrier_init(barrier_t *barrier, int goal)
+{
+    invoke_syscall(SYSCALL_BARRIER_INIT, barrier, goal, IGNORE);
+}
+
+void barrier_wait(barrier_t *barrier)
+{
+    invoke_syscall(SYSCALL_BARRIER_WAIT, barrier, IGNORE, IGNORE);
+}

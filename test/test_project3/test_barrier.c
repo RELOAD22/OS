@@ -12,6 +12,7 @@ void barrier_task1(void)
 {
     int i;
     int print_location = 0;
+    is_init = 0; num_task = 3;
 
     if (!is_init)
     {

@@ -130,6 +130,8 @@ static void init_syscall(void)
 	syscall[SYSCALL_CONDITION_WAIT] = do_condition_wait;
 	syscall[SYSCALL_CONDITION_SIGNAL] = do_condition_signal;
 	syscall[SYSCALL_CONDITION_BROADCAST] = do_condition_broadcast;
+	syscall[SYSCALL_BARRIER_INIT] = do_barrier_init;
+	syscall[SYSCALL_BARRIER_WAIT] = do_barrier_wait;
 
 }
 

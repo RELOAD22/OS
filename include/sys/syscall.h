@@ -67,6 +67,9 @@
 #define SYSCALL_SPAWN 43
 #define SYSCALL_KILL 44
 
+#define SYSCALL_BARRIER_INIT 50
+#define SYSCALL_BARRIER_WAIT 51
+
 /* syscall function pointer */
 int (*syscall[NUM_SYSCALLS])();
 
@@ -95,6 +98,9 @@ void condition_init(condition_t *condition);
 void condition_wait(mutex_lock_t *lock, condition_t *condition);
 void condition_signal(condition_t *condition);
 void condition_broadcast(condition_t *condition);
+
+void barrier_init(barrier_t *barrier, int goal);
+void barrier_wait(barrier_t *barrier);
 
 void sys_ps();
 void sys_exit();

@@ -40,5 +40,8 @@ extern struct task_info task_shell;
 extern struct task_info task1;
 extern struct task_info task2;
 extern struct task_info task3;
+extern struct task_info task4;
+extern struct task_info task5;
+extern struct task_info task6;
 
 #endif

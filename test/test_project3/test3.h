@@ -18,12 +18,12 @@ void wait_exit_task();
 void producer_task(void);
 void consumer_task1(void);
 void consumer_task2(void);
-
+*/
 // [8-10]
 void semaphore_add_task1(void);
 void semaphore_add_task2(void);
 void semaphore_add_task3(void);
-
+/*
 // [8 -10]
 void barrier_task1(void);
 void barrier_task2(void);

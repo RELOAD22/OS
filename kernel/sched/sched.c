@@ -36,7 +36,7 @@ void scheduler(void)
 	    current_running->cursor_y = screen_cursor_y;
     }
     
-    //check_sleeping();
+    check_sleeping();
 
 	if (current_running&&current_running->status != TASK_BLOCKED && current_running->killed == 0){
         queue_push(&ready_queue, current_running);

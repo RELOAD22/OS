@@ -85,3 +85,18 @@ void sys_kill(int pid)
 {
     invoke_syscall(SYSCALL_KILL, pid, IGNORE, IGNORE);    
 }
+
+void semaphore_init(semaphore_t *s, int val)
+{
+    invoke_syscall(SYSCALL_SEMAPHORE_INIT, s, val, IGNORE);
+}
+
+void semaphore_up(semaphore_t *s)
+{
+    invoke_syscall(SYSCALL_SEMAPHORE_UP, s, IGNORE, IGNORE);
+}
+
+void semaphore_down(semaphore_t *s)
+{
+    invoke_syscall(SYSCALL_SEMAPHORE_DOWN, s, IGNORE, IGNORE);
+}

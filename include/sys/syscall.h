@@ -52,6 +52,10 @@
 #define SYSCALL_MUTEX_LOCK_ACQUIRE 31
 #define SYSCALL_MUTEX_LOCK_RELEASE 32
 
+#define SYSCALL_SEMAPHORE_INIT 33
+#define SYSCALL_SEMAPHORE_UP 34
+#define SYSCALL_SEMAPHORE_DOWN 35
+
 #define SYSCALL_PS 40
 #define SYSCALL_EXIT 41
 #define SYSCALL_WAIT 42
@@ -77,6 +81,10 @@ void sys_reflush();
 void mutex_lock_init(mutex_lock_t *);
 void mutex_lock_acquire(mutex_lock_t *);
 void mutex_lock_release(mutex_lock_t *);
+
+void semaphore_init(semaphore_t *, int);
+void semaphore_up(semaphore_t *s);
+void semaphore_down(semaphore_t *s);
 
 void sys_ps();
 void sys_exit();

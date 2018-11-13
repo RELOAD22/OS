@@ -55,4 +55,6 @@ void do_mutex_lock_init(mutex_lock_t *lock);
 void do_mutex_lock_acquire(mutex_lock_t *lock);
 void do_mutex_lock_release(mutex_lock_t *lock);
 
+void *find_in_lockarray(mutex_lock_t *lock);
+
 #endif

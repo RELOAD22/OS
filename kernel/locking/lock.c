@@ -34,7 +34,8 @@ void do_mutex_lock_acquire(mutex_lock_t *lock)
         return;
 	}else{
 	//无锁则上锁
-		current_running->lock = lock;
+        add_to_lockarray(lock);
+		//current_running->lock = lock;
 	    lock->status = LOCKED;  
     } 
 }
@@ -46,5 +47,32 @@ void do_mutex_lock_release(mutex_lock_t *lock)
 		do_unblock_one(&lock->lock_queue);
     }
 	lock->status = UNLOCKED;
-    current_running->lock = NULL;
+    remove_from_lockarray(lock);
+    //current_running->lock = NULL;
+}
+
+void add_to_lockarray(mutex_lock_t *lock){
+    current_running->lock[current_running->lock_count] = lock;
+    ++current_running->lock_count;
+}
+
+void remove_from_lockarray(mutex_lock_t *lock){
+    int index;
+    for(index = 0; index < current_running->lock_count; ++index){
+        if(current_running->lock[index] == lock)
+            break;
+    }
+    for(;index < current_running->lock_count - 1; ++index){
+        current_running->lock[index] = current_running->lock[index + 1];
+    }
+    --current_running->lock_count;
+}
+
+void *find_in_lockarray(mutex_lock_t *lock){
+    int index;
+    for(index = 0; index < current_running->lock_count; ++index){
+        if(current_running->lock[index] == lock)
+            return (void *)lock;
+    }
+    return NULL;
 }

@@ -95,8 +95,9 @@ typedef struct pcb
     int cursor_x;
     int cursor_y;
 
-    mutex_lock_t *lock;
-
+    mutex_lock_t *lock[10];
+    int lock_count;
+    
     int priority;
 } pcb_t;
 

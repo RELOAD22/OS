@@ -53,7 +53,7 @@ void mutex_lock_acquire(mutex_lock_t *lock)
 {
     do{
         invoke_syscall(SYSCALL_MUTEX_LOCK_ACQUIRE, (int)lock, IGNORE, IGNORE);
-    }while(current_running->lock != lock);
+    }while(find_in_lockarray(lock) != lock);
 }
 
 void mutex_lock_release(mutex_lock_t *lock)

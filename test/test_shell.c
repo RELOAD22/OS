@@ -56,7 +56,8 @@ void clear_line(){
     printf("                                                          ");
     sys_move_cursor(0, shell_location_new);
 }
-void clear_func1(){
+
+void clear_func(){
     int i = 0;
 
     for(i = shell_location + 2; i <= shell_location_new + 1; ++i){
@@ -86,12 +87,11 @@ void do_command(){
     }
     else if(strcmp(command, clear_cod) == 0){
         //清屏命令
-        clear_func1();
-        //clear_func2();
+        clear_func();
     }
     else{  
         //输入错误命令
-        printf("invalid command.\n");
+        printf("invalid command.please try again.");
     }
 
     int y_change = screen_cursor_y - screen_cursor_ybefore;

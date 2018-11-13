@@ -31,6 +31,11 @@ static void check_sleeping()
 
 void scheduler(void)
 {
+    if(current_running){
+	    current_running->cursor_x = screen_cursor_x;
+	    current_running->cursor_y = screen_cursor_y;
+    }
+    
     item_t * item = ready_queue.head;
     item_t * item_max_priority = ready_queue.head;
     int temp_priority = 0; int count = 0;
@@ -44,8 +49,12 @@ void scheduler(void)
 	    current_running->status = TASK_READY;
     }
 
+
     current_running = queue_dequeue(&ready_queue);
 	current_running->status = TASK_RUNNING;
+
+	screen_cursor_x = current_running->cursor_x;
+	screen_cursor_y = current_running->cursor_y;
 }
 
 //优先级调度（动态调度），优先级内部实施轮转调度

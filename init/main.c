@@ -66,7 +66,7 @@ static void init_pcb()
 	pcb[1].user_context.regs[31] = pcb[1].user_context.pc = task_shell.entry_point;
 	pcb[1].status = TASK_READY;
 	pcb[1].user_context.cp0_status = 0x00008001;
-	pcb[1].user_context.cp0_epc = 0x0;
+	pcb[1].user_context.cp0_epc = pcb[i].user_context.regs[31];
 	stack_temp -= STACK_SIZE;
 	queue_push(&ready_queue, &pcb[1]);
 	
@@ -77,7 +77,7 @@ static void init_pcb()
 		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = lock_tasks[i - num_lock_tasks]->entry_point;
 		pcb[i].status = TASK_READY;
 		pcb[i].user_context.cp0_status = 0x00008001;
-		pcb[i].user_context.cp0_epc = 0x0;
+		pcb[i].user_context.cp0_epc = pcb[i].user_context.regs[31];
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}

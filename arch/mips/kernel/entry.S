@@ -78,8 +78,7 @@ END(asm_start)
 
 	mfc0 k1, CP0_BADVADDR
 	sw k1, 140(k0)
-	mfc0 k1, CP0_CAUSE
-	sw k1, 144(k0)
+
 	mfc0 k1, CP0_EPC
 	sw k1, 148(k0)
 .endm
@@ -133,13 +132,13 @@ END(asm_start)
 
 	lw k1, 140(k0)
 	mtc0 k1, CP0_BADVADDR
-	lw k1, 144(k0)
-	mtc0 k1, CP0_CAUSE
+
 	lw k1, 148(k0)
 	mtc0 k1, CP0_EPC
 .endm
 
 NESTED(init_scheduler, 0, ra)
+	#!!!!!!!!!!!!!!!注意如果上下文加入status之类的，需要赋初值！！！
     jal     scheduler
 	nop
     RESTORE_CONTEXT(USER)
@@ -161,7 +160,6 @@ LEAF(reset_CPCOUNT)
 	li      k0, 0x2000000
     mtc0    k0, CP0_COMPARE
     jr  ra
-	nop
 END(reset_CPCOUNT)
 
 LEAF(copy_code)
@@ -186,14 +184,13 @@ END(copy_code)
 
 NESTED(enable_interrupt, 0, ra)
     mtc0    zero, CP0_COUNT
-	li      k0, 0x10000000
+	li      k0, 0x5000000
     mtc0    k0, CP0_COMPARE
 
     mfc0    k0, CP0_STATUS
     ori     k0, 0x8001
     mtc0    k0, CP0_STATUS	
     jr  ra
-	nop
 END(enable_interrupt)
 
 .global exception_handler_begin
@@ -201,9 +198,6 @@ END(enable_interrupt)
 
 NESTED(exception_handler_entry, 0, sp)   
 exception_handler_begin:
-    // TODO close interrupt
-    // jmp exception_handler[i] which decided by CP0_CAUSE
-    // Leve2 exception Handler.
 	#关中断
     CLI
 	#保存现场
@@ -211,12 +205,14 @@ exception_handler_begin:
 	mfc0    k0, CP0_CAUSE
 	and     k0, 0x7c
 	beqz    k0, 1f	#判断是否为中断，若是则跳转，否则继续执行
-	nop
+
 	and     k0, 0x1f
 	beqz    k0, 2f	#判断是否为系统调用，若是则跳转，否则继续执行
-	nop
 
 	RESTORE_CONTEXT(USER)
+    mtc0    zero, CP0_COUNT
+	li      k0, 0x2000000
+    mtc0    k0, CP0_COMPARE
 	#开中断
     STI
 	eret
@@ -236,67 +232,51 @@ exception_handler_end:
 END(exception_handler_entry)
 
 NESTED(handle_int, 0, sp)
-    // interrupt handler
-    // Leve3 exception Handler.
-	mfc0    k0, CP0_CAUSE
-	and     k0, 0x8000
-	beqz    k0, 1f	#判断是否为时钟中断，若是则继续执行，否则跳过
-	nop
 
-	SAVE_CONTEXT(KERNEL)
-	#mfc0 a0, CP0_STATUS
-	#mfc0 a1, CP0_CAUSE	
-	#addiu sp,sp,-8
 	jal interrupt_helper
-	nop
-	#addiu sp,sp,8
-	RESTORE_CONTEXT(KERNEL)
-
-1:	
-	#恢复计时器
-    mtc0    zero, CP0_COUNT
-	li      k0, 0x2000000
-    mtc0    k0, CP0_COMPARE
 
     RESTORE_CONTEXT(USER)
-    #判断是否是第一次调用pcb，若是则使用ra替换epc使之可以正确返回
-	li      k1, 0x0
-	mfc0    k0, CP0_EPC
-	bne     k0, k1, 2f
-	nop
-	mtc0    ra, CP0_EPC
-2:
+
+	#恢复计时器
+    mtc0    zero, CP0_COUNT
+	li      k0, 0x1000000
+    mtc0    k0, CP0_COMPARE
 	#开中断
     STI
 	eret
-	nop
 END(handle_int)
 
 NESTED(handle_syscall, 0, sp)
-    // system call handler
-	SAVE_CONTEXT(KERNEL)
+
 	jal     system_call_helper
-	nop
-	RESTORE_CONTEXT(KERNEL)
 
     RESTORE_CONTEXT(USER)
 
-    #判断是否是第一次调用pcb，若是则使用ra替换epc使之可以正确返回
-	li      k1, 0x0
-	mfc0    k0, CP0_EPC
-	bne     k0, k1, 3f
-	nop
-	mtc0    ra, CP0_EPC
-3:
 	#开中断
     STI
 	eret
-	nop	
 END(handle_syscall)
 
 NESTED(handle_other, 0, sp)
     // other exception handler
-	STI
-	eret
-	nop	
 END(handle_other)
+
+LEAF(get_cp0_status)
+    mfc0  v0, CP0_STATUS
+    jr ra
+END(get_cp0_status)
+
+LEAF(get_cp0_cause)
+    mfc0  v0, CP0_CAUSE
+    jr ra
+END(get_cp0_cause)
+
+LEAF(get_cp0_count)
+    mfc0  v0, CP0_COUNT
+    jr ra
+END(get_cp0_count)
+
+LEAF(get_cp0_compare)
+    mfc0  v0, CP0_COMPARE
+    jr ra
+END(get_cp0_compare)

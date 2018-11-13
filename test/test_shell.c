@@ -38,8 +38,8 @@ int valid_input(char ch){
     else if(ch == 13){
         //回车命令
         command[command_put_index] = 0;
-    }else if(ch == 8){
-        //退格删除一个字符    
+    }else if(ch == 127){
+        //退格删除一个字符   
         command_put_index--;   
         command[command_put_index] = 0;     
     }else{  //无有效输入
@@ -71,9 +71,6 @@ void clear_func1(){
     sys_move_cursor(0, shell_location + 1); 
 }
 
-void clear_func2(){
-    ;
-}
 
 void do_command(){
     char *ps_cod = "ps";
@@ -138,7 +135,8 @@ void test_shell()
         //enable_interrupt_shell();
         sys_move_cursor(0, shell_location_new);
         shell_print_begin();    //显示输入内容   
-        printf("%s", command);   
+        printf("%s", command); 
+
         if(valid_input(ch)){
         // 回车执行命令
             sys_move_cursor(0, shell_location_new);

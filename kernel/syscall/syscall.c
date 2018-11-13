@@ -80,3 +80,8 @@ void sys_spawn(task_info_t *task)
 {
     invoke_syscall(SYSCALL_SPAWN, task, IGNORE, IGNORE);    
 }
+
+void sys_kill(int pid)
+{
+    invoke_syscall(SYSCALL_KILL, pid, IGNORE, IGNORE);    
+}

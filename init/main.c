@@ -59,8 +59,8 @@ static void init_pcb()
 	stack_temp = STACK_BASE; int i = 0;
 	int count;
 	process_id = 1;
+
 	//init shell pcb
-	
 	pcb[1].user_stack_top = pcb[1].user_context.regs[29] = stack_temp;
 	process_id = 1;
 	pcb[1].pid = process_id++;
@@ -73,7 +73,7 @@ static void init_pcb()
     queue_init(&(pcb[1].wait));
 	stack_temp -= STACK_SIZE;
 	queue_push(&ready_queue, &pcb[1]);
-/*
+	/*
 	for( i = 2; i < 3; ++i){
 		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
 		pcb[i].pid = process_id++;
@@ -87,21 +87,6 @@ static void init_pcb()
 		stack_temp -= STACK_SIZE;
 		queue_push(&ready_queue, &pcb[i]);
 	}	*/
-/*
-	for( i = 2; i < 5; ++i){
-		pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
-		pcb[i].pid = process_id++;
-		pcb[i].user_context.regs[31] = pcb[i].user_context.pc = test_tasks[i - 2]->entry_point;
-		pcb[i].status = TASK_READY;
-		pcb[i].user_context.cp0_status = 0x00008001;
-		pcb[i].user_context.cp0_epc = pcb[i].user_context.regs[31];
-		pcb[i].lock_count = 0;
-		pcb[i].killed = 0;
-	    queue_init(&(pcb[i].wait));
-		stack_temp -= STACK_SIZE;
-		queue_push(&ready_queue, &pcb[i]);
-	}
-	printk("%dtasks in queue\n", i - 1);*/
 }
 
 static void init_exception_handler()
@@ -137,6 +122,7 @@ static void init_syscall(void)
 	syscall[SYSCALL_EXIT] = do_exit;
 	syscall[SYSCALL_WAIT] = do_wait;
 	syscall[SYSCALL_SPAWN] = do_spawn;
+	syscall[SYSCALL_KILL] = do_kill;
 }
 
 // jump from bootloader.

@@ -4,6 +4,20 @@
 #include "screen.h"
 #include "syscall.h"
 
+static void disable_interrupt_shell()
+{
+    uint32_t cp0_status = get_cp0_status();
+    cp0_status &= 0xfffffffe;
+    set_cp0_status(cp0_status);
+}
+
+static void enable_interrupt_shell()
+{
+    uint32_t cp0_status = get_cp0_status();
+    cp0_status |= 0x01;
+    set_cp0_status(cp0_status);
+}
+
 static char read_uart_ch(void)
 {
     char ch = 0;
@@ -83,6 +97,11 @@ void exec_func(int test_tasks_num){
     printf("exec process[%d]", test_tasks_num);
 }
 
+void kill_func(int pid){
+    sys_kill(pid);
+    printf("kill process pid = %d", pid);
+}
+
 int str2int(const char *str)
 {
     int temp = 0;
@@ -130,6 +149,7 @@ void do_command(){
     char *ps_cod = "ps";
     char *clear_cod = "clear";
     char *exec_cod = "exec";
+    char *kill_cod = "kill";
     int multicod = 0;
 
     if(command_split(command) > 1){
@@ -151,6 +171,10 @@ void do_command(){
     else if(multicod && (strcmp(split_command[0], exec_cod) == 0)){
         //exec命令
         exec_func(str2int(split_command[1]));
+    }
+    else if(multicod && (strcmp(split_command[0], kill_cod) == 0)){
+        //kill命令
+        kill_func(str2int(split_command[1]));
     }
     else{  
         //输入错误命令
@@ -193,9 +217,9 @@ void test_shell()
     while (1)
     {
         // read command from UART port
-        //disable_interrupt_shell();
+        disable_interrupt_shell();
         char ch = read_uart_ch();
-        //enable_interrupt_shell();
+        enable_interrupt_shell();
         sys_move_cursor(0, shell_location_new);
         shell_print_begin();    //显示输入内容   
         printf("%s", command); 

@@ -260,3 +260,14 @@ END(handle_syscall)
 NESTED(handle_other, 0, sp)
     // other exception handler
 END(handle_other)
+
+
+LEAF(get_cp0_status)
+    mfc0  v0, CP0_STATUS
+    jr ra
+END(get_cp0_status)
+
+LEAF(set_cp0_status)
+    mtc0  a0, CP0_STATUS
+    jr ra
+END(set_cp0_status)

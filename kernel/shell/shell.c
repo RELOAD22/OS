@@ -70,3 +70,15 @@ void do_spawn(task_info_t *task){
 	stack_temp -= STACK_SIZE;
 	queue_push(&ready_queue, &pcb[i]);    
 }
+
+void do_kill(int pid){
+    int i;
+    //释放所有锁，以及所有因为这些锁被挂起的进程
+    for(i = 0; i < pcb[pid].lock_count; ++i){
+        do_mutex_lock_release(pcb[pid].lock[i]);
+    }
+    //从ready队列移除
+    pcb[pid].killed = 1;
+    //唤醒所有等待进程结束的进程
+    do_unblock_all(&pcb[pid].wait);
+}

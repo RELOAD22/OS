@@ -56,6 +56,7 @@
 #define SYSCALL_EXIT 41
 #define SYSCALL_WAIT 42
 #define SYSCALL_SPAWN 43
+#define SYSCALL_KILL 44
 
 /* syscall function pointer */
 int (*syscall[NUM_SYSCALLS])();
@@ -81,5 +82,6 @@ void sys_ps();
 void sys_exit();
 void sys_waitpid(int);
 void sys_spawn(task_info_t *);
+void sys_kill(int);
 
 #endif

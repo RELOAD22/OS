@@ -57,7 +57,9 @@ void scheduler(void)
     if(queue_is_empty(&ready_queue))
         return; 
 
-    current_running = queue_dequeue(&ready_queue);
+    do{
+        current_running = queue_dequeue(&ready_queue);
+    }while(current_running->killed == 1);
 	current_running->status = TASK_RUNNING;
 
 	screen_cursor_x = current_running->cursor_x;
@@ -139,6 +141,6 @@ void do_unblock_all(queue_t *queue)
     while(!queue_is_empty(queue)){
 	    pcb_t *blockeditem = queue_dequeue(queue);
 	    blockeditem->status = TASK_READY;
-	    queue_push(&ready_queue, blockeditem);        
+	    queue_push(&ready_queue, blockeditem);      
     }
 }

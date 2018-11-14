@@ -99,7 +99,7 @@ void clear_func(){
 
     for(i = shell_location + 2; i <= shell_location_new + 1; ++i){
             vt100_move_cursor(0, i);
-            printk("                                                          ");
+            printk("                                                             ");
     }
 
     for(i = shell_location + 1; i <= shell_location_new; ++i){
@@ -107,6 +107,19 @@ void clear_func(){
             printf("                                                             ");
     }
     sys_move_cursor(0, shell_location + 1); 
+}
+void clearall_func(){
+    int i = 0;
+
+    for(i = 1; i < shell_location + 1; ++i){
+            vt100_move_cursor(0, i);
+            printk("                                                             ");
+    }
+    for(i = 0; i < shell_location; ++i){
+            sys_move_cursor(0, i);
+            printf("                                                             ");
+    }
+    clear_func();
 }
 
 void exec_func(int test_tasks_num){
@@ -167,6 +180,7 @@ void do_command(){
     char *clear_cod = "clear";
     char *exec_cod = "exec";
     char *kill_cod = "kill";
+    char *clearall_cod  = "clearall";
     int multicod = 0;
 
     if(command_split(command) > 1){
@@ -184,6 +198,10 @@ void do_command(){
     else if(strcmp(command, clear_cod) == 0){
         //清屏命令
         clear_func();
+    }
+    else if(strcmp(command, clearall_cod) == 0){
+        //清屏命令
+        clearall_func();
     }
     else if(multicod && (strcmp(split_command[0], exec_cod) == 0)){
         //exec命令

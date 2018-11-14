@@ -11,6 +11,7 @@ void semaphore_add_task1(void)
 {
     int i;
     int print_location = 0;
+    global_count = 0;
     // int sum_up = 0;
 
     semaphore_init(&semaphore, 1);

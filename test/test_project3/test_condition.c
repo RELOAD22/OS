@@ -15,6 +15,7 @@ void producer_task(void)
     int print_location = 0;
     int production = 3;
     int sum_production = 0;
+    num_staff = 0;
 
     mutex_lock_init(&mutex);
     condition_init(&condition);

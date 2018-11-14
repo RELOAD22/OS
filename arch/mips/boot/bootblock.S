@@ -5,7 +5,7 @@ main:
 	li $t2, 0x0
 loop:
 	li $t0, 0xa0800000
-	li $t1, 0xa080fff0
+	li $t1, 0xa081fff0
 	add $t0, $t0, $t2
 	add $t1, $t1, $t2
 	lw $t3, 0($t0)
@@ -17,7 +17,7 @@ loop:
     #li $a1, 0x000
     #li $a2, 0x200
 	#jal 0x8007b1cc
-	beq $a1, $a1, 0xfff0
+	beq $a1, $a1, 0x1fff0
 
     la  $a0, msg
 	jal 0x8007b980

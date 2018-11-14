@@ -28,7 +28,7 @@ void semaphore_add_task3(void);
 void barrier_task1(void);
 void barrier_task2(void);
 void barrier_task3(void);
-/*
+
 // [11-14]
 void mbox_task1(void);
 void mbox_task2(void);
@@ -38,5 +38,5 @@ void mbox_task4(void);
 void SunQuan(void);
 void LiuBei(void);
 void CaoCao(void);
-*/
+
 #endif

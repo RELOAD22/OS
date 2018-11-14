@@ -82,3 +82,7 @@ void do_kill(int pid){
     //唤醒所有等待进程结束的进程
     do_unblock_all(&pcb[pid].wait);
 }
+
+int do_getpid(){
+    return current_running->pid;
+}

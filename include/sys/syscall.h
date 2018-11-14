@@ -66,6 +66,7 @@
 #define SYSCALL_WAIT 42
 #define SYSCALL_SPAWN 43
 #define SYSCALL_KILL 44
+#define SYSCALL_GETPID 45
 
 #define SYSCALL_BARRIER_INIT 50
 #define SYSCALL_BARRIER_WAIT 51
@@ -107,5 +108,6 @@ void sys_exit();
 void sys_waitpid(int);
 void sys_spawn(task_info_t *);
 void sys_kill(int);
+int sys_getpid();
 
 #endif

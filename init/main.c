@@ -60,6 +60,7 @@ static void init_pcb()
 	int count;
 	process_id = 1;
 
+
 	//init shell pcb
 	pcb[1].user_stack_top = pcb[1].user_context.regs[29] = stack_temp;
 	process_id = 1;
@@ -132,7 +133,7 @@ static void init_syscall(void)
 	syscall[SYSCALL_CONDITION_BROADCAST] = do_condition_broadcast;
 	syscall[SYSCALL_BARRIER_INIT] = do_barrier_init;
 	syscall[SYSCALL_BARRIER_WAIT] = do_barrier_wait;
-
+	syscall[SYSCALL_GETPID] = do_getpid;
 }
 
 // jump from bootloader.

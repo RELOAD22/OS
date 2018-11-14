@@ -6,7 +6,8 @@
 
 void system_call_helper(int fn, int arg1, int arg2, int arg3)
 {
-    syscall[fn](arg1, arg2, arg3);
+    //syscall[fn](arg1, arg2, arg3);
+	current_running->user_context.regs[2] = syscall[fn](arg1, arg2, arg3);
 }
 
 void sys_sleep(int time)
@@ -84,6 +85,11 @@ void sys_spawn(task_info_t *task)
 void sys_kill(int pid)
 {
     invoke_syscall(SYSCALL_KILL, pid, IGNORE, IGNORE);    
+}
+
+int sys_getpid()
+{
+    invoke_syscall(SYSCALL_GETPID, IGNORE, IGNORE, IGNORE);    
 }
 
 void semaphore_init(semaphore_t *s, int val)

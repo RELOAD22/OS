@@ -14,11 +14,11 @@ SRC_SHELL   = ./kernel/shell/shell.c
 
 SRC_SCHED	= ./kernel/sched/sched.c ./kernel/sched/queue.c ./kernel/sched/time.c
 SRC_SYSCALL	= ./kernel/syscall/syscall.c
-SRC_LIBS	= ./libs/string.c ./libs/printk.c
+SRC_LIBS	= ./libs/string.c ./libs/printk.c ./libs/mailbox.c
 #SRC_LIBS	= ./libs/string.c ./libs/printk.c ./libs/mailbox.c
 
 SRC_TEST	= ./test/test_shell.c
-SRC_TEST2	= ./test/test_project3/test_lock2.c ./test/test_project3/test_kill.c ./test/test_project3/test_semaphore.c ./test/test_project3/test_condition.c ./test/test_project3/test_barrier.c
+SRC_TEST2	= ./test/test_project3/test_lock2.c ./test/test_project3/test_kill.c ./test/test_project3/test_semaphore.c ./test/test_project3/test_condition.c ./test/test_project3/test_barrier.c ./test/test_project3/test_sanguo.c
 #SRC_TEST2	= ./test/test_project3/test_barrier.c ./test/test_project3/test_condition.c ./test/test_project3/test_kill.c ./test/test_project3/test_sanguo.c ./test/test_project3/test_semaphore.c ./test/test_project3/test_lock2.c
 
 SRC_IMAGE	= ./tools/createimage.c

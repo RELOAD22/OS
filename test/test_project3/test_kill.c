@@ -25,7 +25,7 @@ void ready_to_exit_task()
     for (i = 0; i < 50000; i++)
     {
         sys_move_cursor(0, print_location);
-        printf("> [TASK] I am task with pid %d, I have acquired two mutex lock. (%d)", current_running->pid, i++);
+        printf("> [TASK]I am task with pid %d, acquired two mutexlock.(%d)", current_running->pid, i++);
     }
     sys_exit(); // test exit
 }

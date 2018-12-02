@@ -271,3 +271,36 @@ LEAF(set_cp0_status)
     mtc0  a0, CP0_STATUS
     jr ra
 END(set_cp0_status)
+
+
+
+LEAF(set_C0_ENHI)
+    mtc0  a0, CP0_ENTRYHI
+    jr ra
+END(set_C0_ENHI)
+
+LEAF(set_C0_ENLO0)
+    mtc0  a0, CP0_ENTRYLO0
+    jr ra
+END(set_C0_ENLO0)
+
+LEAF(set_C0_ENLO1)
+    mtc0  a0, CP0_ENTRYLO1
+    jr ra
+END(set_C0_ENLO1)
+
+LEAF(set_C0_PAGEMASK)
+    mtc0  a0, CP0_PAGEMASK
+    jr ra
+END(set_C0_PAGEMASK)
+
+LEAF(set_C0_INDEX)
+    mtc0  a0, CP0_INDEX
+    jr ra
+END(set_C0_INDEX)
+
+LEAF(set_tlb)
+	tlbwi
+    jr ra
+END(set_tlb)
+

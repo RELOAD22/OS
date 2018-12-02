@@ -109,6 +109,16 @@ typedef struct pcb
     int priority;
 } pcb_t;
 
+/* Page table */
+typedef struct page
+{
+    int virtual_pageframe_num;  //0x0-0xff
+
+    int physical_pageframe_num; //0x1000-0x1fff 
+
+    int valid_flag; //1-valid   0-invalid
+} page_t;
+
 /* task information, used to init PCB */
 typedef struct task_info
 {

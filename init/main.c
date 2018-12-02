@@ -47,9 +47,70 @@ queue_t block_queue;
 pcb_t *current_running;
 pid_t process_id;
 pcb_t pcb[NUM_MAX_TASK];
+page_t page[NUM_MAX_TASK][256];
 int stack_temp;
 
 extern uint32_t time_elapsed;	//time.c
+
+static void init_page_table()
+{
+	int i = 0;
+	for(i = 0; i < 256; ++i){
+		page[3][i].virtual_pageframe_num = i;
+		page[3][i].physical_pageframe_num = 0x1800 + i;
+		page[3][i].valid_flag = 1;
+	}
+}
+
+static void init_TLB(){
+
+	int k1;
+	int vpn2;
+	int asid;
+	int epfn;
+	int coherency;
+	int opfn;
+	int Dirty;
+	int Valid;
+	int Global;
+	int index_of_some_entry;
+	int i;
+	for(i = 0; i < 64; i += 2)
+	{
+		vpn2 = page[3][i].virtual_pageframe_num >> 1;
+		asid = 0;
+		k1 = (vpn2<<13)|(asid & 0xff);
+		set_C0_ENHI(k1);
+
+		coherency = 2; Dirty = 1; Valid = 1; Global = 1;
+
+
+		epfn = page[3][i].physical_pageframe_num;
+		k1 = (epfn<<6)|(coherency<<3)|(Dirty<<2)|(Valid<<1)|Global;
+		set_C0_ENLO0(k1);
+
+		opfn = page[3][i + 1].physical_pageframe_num;
+		k1 = (opfn<<6)|(coherency<<3)|(Dirty<<2)|(Valid<<1)|Global;
+		set_C0_ENLO1(k1);
+
+		k1 = 0; 
+		set_C0_PAGEMASK(k1);
+
+		index_of_some_entry = i / 2;
+		k1 = index_of_some_entry; 
+		set_C0_INDEX(k1);
+
+		set_tlb();
+	}
+}
+
+static void init_memory()
+{
+	init_page_table(); 
+	//In task1&2, page table is initialized completely with address mapping, but only virtual pages in task3.
+	init_TLB();		//only used in P4 task1
+	//init_swap();		//only used in P4 bonus: Page swap mechanism
+}
 
 static void init_pcb()
 {
@@ -148,6 +209,10 @@ void __attribute__((section(".entry_function"))) _start(void)
 	// init interrupt (^_^)
 	init_exception();
 	printk("> [INIT] Interrupt processing initialization succeeded.\n");
+
+	// init virtual memory
+	init_memory();
+	printk("> [INIT] Virtual memory initialization succeeded.\n");
 
 	// init system call table (0_0)
 	init_syscall();

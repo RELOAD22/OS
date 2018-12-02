@@ -38,9 +38,13 @@ struct task_info task2_5 = {(uint32_t)&lock_task2, USER_THREAD};
 struct task_info *lock_tasks[16] = {&task2_4, &task2_5};
 int num_lock_tasks = 2;
 //test进程
+/*
 struct task_info task1 = {(uint32_t)&ready_to_exit_task, USER_PROCESS};
 struct task_info task2 = {(uint32_t)&wait_lock_task, USER_PROCESS};
-struct task_info task3 = {(uint32_t)&wait_exit_task, USER_PROCESS};
+struct task_info task3 = {(uint32_t)&wait_exit_task, USER_PROCESS};*/
+struct task_info task1 = {(uint32_t)&drawing_task1, USER_PROCESS};
+struct task_info task2 = {(uint32_t)&rw_task1, USER_PROCESS};
+struct task_info task3 = {(uint32_t)&drawing_task1, USER_PROCESS};
 struct task_info task4 = {(uint32_t)&semaphore_add_task1, USER_PROCESS};
 struct task_info task5 = {(uint32_t)&semaphore_add_task2, USER_PROCESS};
 struct task_info task6 = {(uint32_t)&semaphore_add_task3, USER_PROCESS};

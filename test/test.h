@@ -26,7 +26,9 @@
 #ifndef INCLUDE_TEST_H_
 #define INCLUDE_TEST_H_
 
+#include "test4.h"
 #include "test3.h"
+
 #include "sched.h"
 
 extern struct task_info *test_tasks[16];

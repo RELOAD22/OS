@@ -304,3 +304,54 @@ LEAF(set_tlb)
     jr ra
 END(set_tlb)
 
+LEAF(set_tlbwr)
+	tlbwr
+    jr ra
+END(set_tlbwr)
+
+
+LEAF(copy_tlb_code)	
+	li      t2, 0x0
+	la      t4, tlb_handler_end
+looptlb:
+	la      t0, tlb_handler_begin
+	li      t1, 0x80000000
+	add     t0, t0, t2
+	add     t1, t1, t2
+	lw      t3, 0(t0)
+	sw      t3, 0(t1)
+	add     t2, t2, 0x4
+	ble     t0, t4, looptlb
+	nop
+
+	jr      ra
+	nop
+END(copy_tlb_code)
+
+.global tlb_handler_begin
+.global tlb_handler_end
+
+NESTED(tlb_handler_entry, 0, sp)   
+tlb_handler_begin:
+	#关中断
+    CLI
+	#保存现场
+    SAVE_CONTEXT(USER)
+
+	jal     handle_tlb_refill
+	nop
+
+tlb_handler_end:
+END(tlb_handler_entry)
+
+NESTED(handle_tlb_refill, 0, sp)
+
+	mfc0 a0, CP0_CONTEXT
+	jal do_TLB_Refill
+
+    RESTORE_CONTEXT(USER)
+
+	#开中断
+    STI
+	eret
+END(handle_tlb_refill)

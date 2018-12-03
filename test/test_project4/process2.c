@@ -94,6 +94,7 @@ void rw_task1(void)
 		vt100_move_cursor(1, curs+i);
 		memory[i] = mem2 = rand();
 		*(int *)mem1 = mem2;
+		vt100_move_cursor(1, curs+i);
 		printk("Write: 0x%x, %d", mem1, mem2);
 		/*
 		vt100_move_cursor(1, 3);

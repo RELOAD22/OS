@@ -104,11 +104,54 @@ static void init_TLB(){
 	}
 }
 
+static void init_TLB(){
+
+	int k1;
+	int vpn2;
+	int asid;
+	int epfn;
+	int coherency;
+	int opfn;
+	int Dirty;
+	int Valid;
+	int Global;
+	int index_of_some_entry;
+	int i;
+	for(i = 0; i < 64; i += 2)
+	{
+		vpn2 = page[3][i].virtual_pageframe_num >> 1;
+		asid = 0;
+		k1 = (vpn2<<13)|(asid & 0xff);
+		set_C0_ENHI(k1);
+
+		coherency = 2; Dirty = 1; Valid = 1; Global = 1;
+
+
+		epfn = page[3][i].physical_pageframe_num;
+		k1 = (epfn<<6)|(coherency<<3)|(Dirty<<2)|(Valid<<1)|Global;
+		set_C0_ENLO0(k1);
+
+		opfn = page[3][i + 1].physical_pageframe_num;
+		k1 = (opfn<<6)|(coherency<<3)|(Dirty<<2)|(Valid<<1)|Global;
+		set_C0_ENLO1(k1);
+
+		k1 = 0; 
+		set_C0_PAGEMASK(k1);
+
+		index_of_some_entry = i / 2;
+		k1 = index_of_some_entry; 
+		set_C0_INDEX(k1);
+
+		set_tlb();
+	}
+}
+
 static void init_memory()
 {
 	init_page_table(); 
 	//In task1&2, page table is initialized completely with address mapping, but only virtual pages in task3.
-	init_TLB();		//only used in P4 task1
+	//init_TLB();		//only used in P4 task1
+	init_TLB_invalid();
 	//init_swap();		//only used in P4 bonus: Page swap mechanism
 }
 
@@ -164,6 +207,7 @@ static void init_exception()
 	// 4. reset CP0_COMPARE & CP0_COUNT register
 	printk("begin copy\n");
 	copy_code();	//含有关中断操作
+	copy_tlb_code(); 	//拷贝tlb例外处理代码至0x80000000
 	int * copy_begin_ptr = exception_handler_begin;
 	int * copy_end_ptr = exception_handler_end;
 	printk("%x -- %x \n", copy_begin_ptr, copy_end_ptr);

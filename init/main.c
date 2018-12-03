@@ -104,7 +104,7 @@ static void init_TLB(){
 	}
 }
 
-static void init_TLB(){
+static void init_TLB_invalid(){
 
 	int k1;
 	int vpn2;
@@ -119,19 +119,22 @@ static void init_TLB(){
 	int i;
 	for(i = 0; i < 64; i += 2)
 	{
-		vpn2 = page[3][i].virtual_pageframe_num >> 1;
+		vpn2 = 0 >> 1;
 		asid = 0;
 		k1 = (vpn2<<13)|(asid & 0xff);
 		set_C0_ENHI(k1);
 
-		coherency = 2; Dirty = 1; Valid = 1; Global = 1;
+		coherency = 2; Dirty = 1; Global = 1;
+		if(i == 0)
+			Valid = 1;
+		else 
+			Valid = 0;
 
-
-		epfn = page[3][i].physical_pageframe_num;
+		epfn = 0x1800;
 		k1 = (epfn<<6)|(coherency<<3)|(Dirty<<2)|(Valid<<1)|Global;
 		set_C0_ENLO0(k1);
 
-		opfn = page[3][i + 1].physical_pageframe_num;
+		opfn = 0x1801;
 		k1 = (opfn<<6)|(coherency<<3)|(Dirty<<2)|(Valid<<1)|Global;
 		set_C0_ENLO1(k1);
 

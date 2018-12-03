@@ -33,6 +33,8 @@ void do_TLB_Refill(int Context){
 	k1 = (vpn2<<13)|(asid & 0xff);
 	set_C0_ENHI(k1);
 
+    find_tlbp(k1);
+
 	coherency = 2; Dirty = 1; Valid = 1; Global = 1;
 	epfn = page[i][count].physical_pageframe_num;
 	k1 = (epfn<<6)|(coherency<<3)|(Dirty<<2)|(Valid<<1)|Global;
@@ -50,11 +52,15 @@ void do_TLB_Refill(int Context){
 
 	k1 = 0; 
 	set_C0_PAGEMASK(k1);
-	index_of_some_entry = i / 2;
-	k1 = index_of_some_entry; 
-	set_C0_INDEX(k1);
-	set_tlbwr();   
-
-	vt100_move_cursor(1, 7);
-	printk("BadVaddr:%x vnum: %x pnum: %x      ", Context,BadVnum,epfn);
+	
+    if(get_index() < 0){    //未查找到对应的值，随机写入tlb
+        set_tlbwr();
+	    vt100_move_cursor(1, 7);
+	    printk("BadVaddr:%x vnum: %x pnum: %x                 ", Context,BadVnum,epfn);
+    }
+    else{   //查找到了对应的虚拟地址，此时index设置到相应位置
+        set_tlb();  
+	    vt100_move_cursor(1, 7);
+	    printk("(invalid tlb)BadVaddr:%x vnum: %x pnum: %x    ", Context,BadVnum,epfn);
+    }
 }

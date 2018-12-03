@@ -309,6 +309,17 @@ LEAF(set_tlbwr)
     jr ra
 END(set_tlbwr)
 
+LEAF(get_index)
+	mfc0 v0, CP0_INDEX
+    jr ra
+END(get_index)
+
+LEAF(find_tlbp)
+	mtc0 a0, CP0_ENTRYHI
+	tlbp
+    jr ra
+END(find_tlbp)
+
 
 LEAF(copy_tlb_code)	
 	li      t2, 0x0

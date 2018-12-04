@@ -49,6 +49,8 @@ pid_t process_id;
 pcb_t pcb[NUM_MAX_TASK];
 page_t page[NUM_MAX_TASK][256];
 int stack_temp;
+int tlb_unused_index;
+int physical_unused_num;
 
 extern uint32_t time_elapsed;	//time.c
 
@@ -56,11 +58,11 @@ static void init_page_table()
 {
 	int i = 0;
 	int num_id;
-	for(num_id = 1; num_id <= 5; ++num_id){
+	for(num_id = 1; num_id < NUM_MAX_TASK; ++num_id){
 		for(i = 0; i < 256; ++i){
-			page[num_id][i].virtual_pageframe_num = i;
-			page[num_id][i].physical_pageframe_num = 0x1000 + i + (num_id-1) * 0x100;
-			page[num_id][i].valid_flag = 1;
+			//page[num_id][i].virtual_pageframe_num = i;
+			//page[num_id][i].physical_pageframe_num = 0x1000 + i + (num_id-1) * 0x100;
+			page[num_id][i].valid_flag = 0;
 		}
 	}
 }
@@ -158,6 +160,8 @@ static void init_memory()
 	//In task1&2, page table is initialized completely with address mapping, but only virtual pages in task3.
 	//init_TLB();		//only used in P4 task1
 	TLB_flush();
+	physical_unused_num = 0x1000;
+	tlb_unused_index = 0;
 	//init_swap();		//only used in P4 bonus: Page swap mechanism
 }
 
@@ -181,6 +185,7 @@ static void init_pcb()
 	pcb[1].user_context.cp0_epc = pcb[i].user_context.regs[31];
 	pcb[1].lock_count = 0;
 	pcb[1].killed = 0;
+	pcb[1].mapped = 0;
     queue_init(&(pcb[1].wait));
 	stack_temp -= STACK_SIZE;
 	queue_push(&ready_queue, &pcb[1]);

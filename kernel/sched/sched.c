@@ -62,18 +62,30 @@ void scheduler(void)
     }while(current_running->killed == 1);
 	current_running->status = TASK_RUNNING;
 
-    //TLB_flush();
     set_C0_ENHI(current_running->pid);
-    int tlb_Context = (((current_running->user_context).regs[29]) / 0x2000) * 0x10;
-    if(tlb_Context < 0x400000){
-        do_TLB_Refill(tlb_Context);
-	    vt100_move_cursor(1, 8);
-	    printk("refill for stack: %x    ", tlb_Context / 0x10);}
+    if(current_running->mapped == 1){
+        check_stack_to_tlb();
+    }
 
 	screen_cursor_x = current_running->cursor_x;
 	screen_cursor_y = current_running->cursor_y;
 }
 
+void check_stack_to_tlb(){
+    int tlb_Context = (((current_running->user_context).regs[29]) / 0x2000) * 0x10;
+
+    int BadVnum = (tlb_Context / 0x10)*2;
+	int vpn2 = BadVnum >> 1;
+
+	int k1 = (vpn2<<13)|(current_running->pid  & 0xff);
+	set_C0_ENHI(k1);
+    find_tlbp(k1);	//查找C0_ENHI在tlb中
+
+    //栈所在页面不在tlb中
+    if(get_index() >= 0){
+        do_TLB_Refill(tlb_Context);  
+    }  
+}
 //优先级调度（动态调度），优先级内部实施轮转调度
 /*
 void scheduler(void)

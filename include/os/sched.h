@@ -107,6 +107,8 @@ typedef struct pcb
     int sleep_time;
 
     int priority;
+
+    int mapped; //0-unmapped 1-mapped
 } pcb_t;
 
 /* Page table */

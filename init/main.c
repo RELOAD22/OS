@@ -127,7 +127,7 @@ void TLB_flush(){
 		k1 = (vpn2<<13)|(asid & 0xff);
 		set_C0_ENHI(k1);
 
-		coherency = 2; Dirty = 1; Global = 1;
+		coherency = 2; Dirty = 1; Global = 0;
 		if(i == 0)
 			Valid = 0;
 		else 

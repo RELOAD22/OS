@@ -36,7 +36,7 @@ void do_TLB_Refill(int Context){
 
     find_tlbp(k1);	//查找C0_ENHI在tlb中
 
-	coherency = 2; Dirty = 1; Valid = 1; Global = 1;
+	coherency = 2; Dirty = 1; Valid = 1; Global = 0;
 	epfn = page[i][count].physical_pageframe_num;
 	k1 = (epfn<<6)|(coherency<<3)|(Dirty<<2)|(Valid<<1)|Global;
 	set_C0_ENLO0(k1);    

@@ -62,11 +62,11 @@ void scheduler(void)
     }while(current_running->killed == 1);
 	current_running->status = TASK_RUNNING;
 
-    TLB_flush();
+    //TLB_flush();
     set_C0_ENHI(current_running->pid);
 
-	vt100_move_cursor(1, 8);
-	printk("pid: %x    ", current_running->pid);
+	//vt100_move_cursor(1, 8);
+	//printk("pid: %x    ", current_running->pid);
 
 	screen_cursor_x = current_running->cursor_x;
 	screen_cursor_y = current_running->cursor_y;

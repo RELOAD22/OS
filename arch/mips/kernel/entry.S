@@ -282,7 +282,10 @@ LEAF(set_cp0_status)
     jr ra
 END(set_cp0_status)
 
-
+LEAF(get_C0_ENHI)
+    mfc0  v0, CP0_ENTRYHI
+    jr ra
+END(get_C0_ENHI)
 
 LEAF(set_C0_ENHI)
     mtc0  a0, CP0_ENTRYHI

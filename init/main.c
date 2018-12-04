@@ -55,10 +55,13 @@ extern uint32_t time_elapsed;	//time.c
 static void init_page_table()
 {
 	int i = 0;
-	for(i = 0; i < 256; ++i){
-		page[3][i].virtual_pageframe_num = i;
-		page[3][i].physical_pageframe_num = 0x1800 + i;
-		page[3][i].valid_flag = 1;
+	int num_id;
+	for(num_id = 3; num_id <= 4; ++num_id){
+		for(i = 0; i < 256; ++i){
+			page[num_id][i].virtual_pageframe_num = i;
+			page[num_id][i].physical_pageframe_num = 0x1800 + i;
+			page[num_id][i].valid_flag = 1;
+		}
 	}
 }
 
@@ -104,7 +107,7 @@ static void init_TLB(){
 	}
 }
 
-static void init_TLB_invalid(){
+void TLB_flush(){
 
 	int k1;
 	int vpn2;
@@ -154,7 +157,7 @@ static void init_memory()
 	init_page_table(); 
 	//In task1&2, page table is initialized completely with address mapping, but only virtual pages in task3.
 	//init_TLB();		//only used in P4 task1
-	init_TLB_invalid();
+	TLB_flush();
 	//init_swap();		//only used in P4 bonus: Page swap mechanism
 }
 

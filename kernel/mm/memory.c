@@ -13,9 +13,10 @@ void do_TLB_Refill(int Context){
 	int Valid;
 	int Global;
 	int index_of_some_entry;  
-    int i = 3;  
+    int i;  
     int BadVnum = (Context / 0x10)*2;
-
+	asid = get_C0_ENHI();
+	i = asid & 0xff;
     /*寻找进程i页表中对应虚拟地址的一项*/
     for(count = 0; count < 256; ++count){
         if(BadVnum == page[i][count].virtual_pageframe_num)
@@ -29,7 +30,7 @@ void do_TLB_Refill(int Context){
     }
 
 	vpn2 = page[i][count].virtual_pageframe_num >> 1;
-	asid = 0;
+	asid = get_C0_ENHI();
 	k1 = (vpn2<<13)|(asid & 0xff);
 	set_C0_ENHI(k1);
 
@@ -56,11 +57,11 @@ void do_TLB_Refill(int Context){
     if(get_index() < 0){    //未查找到对应的值，随机写入tlb
         set_tlbwr();
 	    vt100_move_cursor(1, 7);
-	    printk("BadVaddr:%x vnum: %x pnum: %x                 ", Context,BadVnum,epfn);
+	    printk("asid:%x BadVaddr:%x vnum: %x pnum: %x                 ", (asid & 0xff), Context,BadVnum,epfn);
     }
     else{   //查找到了对应的虚拟地址，此时index设置到相应位置
         set_tlb();  
 	    vt100_move_cursor(1, 7);
-	    printk("(invalid tlb)BadVaddr:%x vnum: %x pnum: %x    ", Context,BadVnum,epfn);
+	    printk("(invalid)asid:%x BadVaddr:%x vnum: %x pnum: %x        ", (asid & 0xff), Context,BadVnum,epfn);
     }
 }

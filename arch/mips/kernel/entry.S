@@ -202,6 +202,9 @@ exception_handler_begin:
     CLI
 	#保存现场
     SAVE_CONTEXT(USER)
+	#切换到内核栈
+	li      sp, 0xa0f00000
+
 	mfc0    k0, CP0_CAUSE
 	and     k0, 0x7c
 	beqz    k0, 1f	#判断是否为中断，若是则跳转，否则继续执行
@@ -361,6 +364,8 @@ tlb_handler_begin:
     CLI
 	#保存现场
     SAVE_CONTEXT(USER)
+	#切换到内核栈
+	li      sp, 0xa0f00000
 
 	jal     handle_tlb_refill
 	nop

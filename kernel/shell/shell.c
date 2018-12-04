@@ -59,6 +59,9 @@ void do_wait(int pid){
 void do_spawn(task_info_t *task){
     int i = process_id;
 	pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
+    if(i == 3)
+        	pcb[i].user_stack_top = pcb[i].user_context.regs[29] = 0x000fff00;
+
 	pcb[i].pid = process_id++;
 	pcb[i].user_context.regs[31] = pcb[i].user_context.pc = task->entry_point;
 	pcb[i].status = TASK_READY;

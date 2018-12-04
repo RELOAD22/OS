@@ -64,9 +64,11 @@ void scheduler(void)
 
     //TLB_flush();
     set_C0_ENHI(current_running->pid);
-
-	//vt100_move_cursor(1, 8);
-	//printk("pid: %x    ", current_running->pid);
+    int tlb_Context = (((current_running->user_context).regs[29]) / 0x2000) * 0x10;
+    if(tlb_Context < 0x400000){
+        do_TLB_Refill(tlb_Context);
+	    vt100_move_cursor(1, 8);
+	    printk("refill for stack: %x    ", tlb_Context / 0x10);}
 
 	screen_cursor_x = current_running->cursor_x;
 	screen_cursor_y = current_running->cursor_y;

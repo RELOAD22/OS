@@ -56,10 +56,10 @@ static void init_page_table()
 {
 	int i = 0;
 	int num_id;
-	for(num_id = 3; num_id <= 4; ++num_id){
+	for(num_id = 1; num_id <= 5; ++num_id){
 		for(i = 0; i < 256; ++i){
 			page[num_id][i].virtual_pageframe_num = i;
-			page[num_id][i].physical_pageframe_num = 0x1800 + i;
+			page[num_id][i].physical_pageframe_num = 0x1000 + i + (num_id-1) * 0x100;
 			page[num_id][i].valid_flag = 1;
 		}
 	}
@@ -166,7 +166,7 @@ static void init_pcb()
 	queue_init(&ready_queue);
 	queue_init(&block_queue);
 
-	stack_temp = STACK_BASE; int i = 0;
+	stack_temp = STACK_BASE - STACK_SIZE; int i = 0;
 	int count;
 	process_id = 1;
 

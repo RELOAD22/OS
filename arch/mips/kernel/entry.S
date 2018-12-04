@@ -206,8 +206,15 @@ exception_handler_begin:
 	and     k0, 0x7c
 	beqz    k0, 1f	#判断是否为中断，若是则跳转，否则继续执行
 
-	and     k0, 0x1f
-	beqz    k0, 2f	#判断是否为系统调用，若是则跳转，否则继续执行
+	and     k0, 0xff
+	li      k1, 0x20
+	beq     k0, k1, 2f	#判断是否为系统调用，若是则跳转，否则继续执行
+
+	and     k0, 0xff
+	li      k1, 0x8
+	beq     k0, k1, 3f	#判断是否为tlb invalid，若是则跳转，否则继续执行
+	li      k1, 0x0c
+	beq     k0, k1, 3f	#判断是否为tlb invalid，若是则跳转，否则继续执行
 
 	RESTORE_CONTEXT(USER)
     mtc0    zero, CP0_COUNT
@@ -228,6 +235,9 @@ exception_handler_begin:
     SAVE_CONTEXT(USER)
 	jal     handle_syscall
 	nop
+3:
+	jal     handle_tlb_refill
+	nop    
 exception_handler_end:
 END(exception_handler_entry)
 

@@ -126,7 +126,7 @@ static void init_TLB_invalid(){
 
 		coherency = 2; Dirty = 1; Global = 1;
 		if(i == 0)
-			Valid = 1;
+			Valid = 0;
 		else 
 			Valid = 0;
 

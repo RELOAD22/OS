@@ -33,7 +33,7 @@ void do_TLB_Refill(int Context){
 	k1 = (vpn2<<13)|(asid & 0xff);
 	set_C0_ENHI(k1);
 
-    find_tlbp(k1);
+    find_tlbp(k1);	//查找C0_ENHI在tlb中
 
 	coherency = 2; Dirty = 1; Valid = 1; Global = 1;
 	epfn = page[i][count].physical_pageframe_num;

@@ -51,6 +51,8 @@ page_t page[NUM_MAX_TASK][256];
 int stack_temp;
 int tlb_unused_index;
 int physical_unused_num;
+int disk_unused_num;
+int pyhsical_page_full_flag;	//0-not full  1-full
 
 extern uint32_t time_elapsed;	//time.c
 
@@ -63,6 +65,7 @@ static void init_page_table()
 			//page[num_id][i].virtual_pageframe_num = i;
 			//page[num_id][i].physical_pageframe_num = 0x1000 + i + (num_id-1) * 0x100;
 			page[num_id][i].valid_flag = 0;
+			page[num_id][i].on_disk_flag = 0;
 		}
 	}
 }
@@ -162,6 +165,8 @@ static void init_memory()
 	TLB_flush();
 	physical_unused_num = 0x1000;
 	tlb_unused_index = 0;
+	pyhsical_page_full_flag = 0;
+	disk_unused_num = 0;
 	//init_swap();		//only used in P4 bonus: Page swap mechanism
 }
 

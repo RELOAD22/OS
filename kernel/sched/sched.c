@@ -63,9 +63,10 @@ void scheduler(void)
 	current_running->status = TASK_RUNNING;
 
     set_C0_ENHI(current_running->pid);
+    /*
     if(current_running->mapped == 1){
         check_stack_to_tlb();
-    }
+    }*/
 
 	screen_cursor_x = current_running->cursor_x;
 	screen_cursor_y = current_running->cursor_y;

@@ -119,6 +119,10 @@ typedef struct page
     int physical_pageframe_num; //0x1000-0x1fff 
 
     int valid_flag; //1-valid   0-invalid
+
+    int on_disk_flag;   //1-on disk   0-not on disk
+
+    int disk_pageframe_num; 
 } page_t;
 
 /* task information, used to init PCB */

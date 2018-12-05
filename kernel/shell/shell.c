@@ -58,11 +58,8 @@ void do_wait(int pid){
 
 void do_spawn(task_info_t *task){
     int i = process_id;
-	pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
-    if(i == 3){
-        pcb[i].user_stack_top = pcb[i].user_context.regs[29] = 0x000ffff0;
-        pcb[i].mapped = 1;
-    }
+	//pcb[i].user_stack_top = pcb[i].user_context.regs[29] = stack_temp;
+    pcb[i].user_stack_top = pcb[i].user_context.regs[29] = 0x000ffff0;
 	pcb[i].pid = process_id++;
 	pcb[i].user_context.regs[31] = pcb[i].user_context.pc = task->entry_point;
 	pcb[i].status = TASK_READY;
@@ -70,9 +67,9 @@ void do_spawn(task_info_t *task){
 	pcb[i].user_context.cp0_epc = pcb[i].user_context.regs[31];
 	pcb[i].lock_count = 0;
 	pcb[i].killed = 0;
-    pcb[i].mapped = 0;
+    pcb[i].mapped = 1;
 	queue_init(&(pcb[i].wait));
-	stack_temp -= STACK_SIZE;
+	//stack_temp -= STACK_SIZE;
 	queue_push(&ready_queue, &pcb[i]);    
 }
 

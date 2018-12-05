@@ -6,6 +6,7 @@
 
 #define TLB_ENTRY_NUMBER 32
 #define PYHSICAL_PAGE_NUMBER 0X2000
+//#define PYHSICAL_PAGE_NUMBER 0X1008
 #define PTE_NUM 0x100
 
 extern int pyhsical_page_full_flag;

@@ -166,7 +166,7 @@ static void init_memory()
 	physical_unused_num = 0x1000;
 	tlb_unused_index = 0;
 	pyhsical_page_full_flag = 0;
-	disk_unused_num = 0;
+	disk_unused_num = 2;
 	//init_swap();		//only used in P4 bonus: Page swap mechanism
 }
 

@@ -11,6 +11,13 @@ void do_TLB_Refill(int Context){
     int BadVnum = (Context / 0x10)*2;
 	asid = get_C0_ENHI();
 	i = asid & 0xff;
+
+	if(BadVnum >= 0x100){
+	    vt100_move_cursor(1, 7);
+	    printk("ERROR ADDRESS----ERROR ADDRESS----        ");
+		return;
+	}
+
     /*寻找进程i页表中对应虚拟地址的一项*/
     for(count = 0; count < PTE_NUM; ++count){
         if((BadVnum == page[i][count].virtual_pageframe_num) && (page[i][count].valid_flag == 1))
@@ -129,6 +136,9 @@ void do_page_fault(int BadVnum){
 		if(physical_unused_num == PYHSICAL_PAGE_NUMBER)
 			pyhsical_page_full_flag = 1;
 	}
+				vt100_move_cursor(1, 10);
+	//printk("B_pid:%x Bcount:%x vaddr:%x         ", pid_now, count, BadVnum);
+
 }
 
 void do_page_replace(int BadVnum){
@@ -147,12 +157,17 @@ void do_page_replace(int BadVnum){
 
     /*寻找用户进程页表中对应有效虚拟地址-物理地址的一项*/
 	for(B_pid = 3; B_pid < NUM_MAX_TASK; ++B_pid){
-    	for(Bcount = 0; Bcount < PTE_NUM; ++Bcount){
-        	if((page[B_pid][Bcount].on_disk_flag == 0) && (page[B_pid][Bcount].valid_flag == 1))
-           		break;
-    	}
-	}
+    	for(Bcount = 4; Bcount < PTE_NUM; ++Bcount){
+        	if((page[B_pid][Bcount].on_disk_flag == 0) && (page[B_pid][Bcount].valid_flag == 1)){          		
+				break;
+			}
 
+    	}
+		break;
+	}
+	int vpn2; int k1; int coherency;int Dirty;int Valid;int Global;
+	int epfn; int opfn;
+/*
 	//装填B对应的页表项到tlb中，这样之后就能拷贝这部分内存的内容
 	int vpn2 = page[B_pid][Bcount].virtual_pageframe_num >> 1;
 	asid = B_pid;
@@ -191,7 +206,7 @@ void do_page_replace(int BadVnum){
 	}else{	//查找到了对应的值
         set_tlb();		
 	}
-
+*/
 
 
 	//B原来的物理页面
@@ -200,24 +215,50 @@ void do_page_replace(int BadVnum){
 	old_occupy_disk_pagenum = page[pid_now][Acount].disk_pageframe_num;
 
 	//将B映射的物理页面写到新的空闲disk页面上
-	int physical_address = new_free_physical_pagenum << 0x1000;
-	int disk_address = disk_unused_num << 0x1000;
+	int physical_address = (new_free_physical_pagenum >> 1) * 0x2000;
+	int disk_address = disk_unused_num * 0x1000;
+//	int virtual_address = (page[B_pid][Bcount].virtual_pageframe_num) * 0x1000; 
+	int virtual_address = 0x2000;
+	vt100_move_cursor(1, 9);
+	printk("%xBegin write d_ad:%x v_ad:%x        ",pid_now,disk_address, virtual_address);
 
-	//sdwrite(physical_address, disk_address, 0x2000);
+
+	sdwrite(virtual_address, disk_address, 0x2000);
+
+	vt100_move_cursor(1, 10);
+	printk("finish write d_ad:%x v_ad:%x        ",disk_address, virtual_address);
+
+	vt100_move_cursor(1, 11);
+	printk("11111        ");
 
 	//B映射重新建立在disk上
-	page[B_pid][Bcount].virtual_pageframe_num = BadVnum;
+	//page[B_pid][Bcount].virtual_pageframe_num = BadVnum;
 	page[B_pid][Bcount].disk_pageframe_num = disk_unused_num;
 	page[B_pid][Bcount].valid_flag = 1;
 	page[B_pid][Bcount].on_disk_flag = 1;
 
-	page[B_pid][Bcount + 1].virtual_pageframe_num = BadVnum + 1;
+	//page[B_pid][Bcount + 1].virtual_pageframe_num = BadVnum + 1;
 	page[B_pid][Bcount + 1].disk_pageframe_num = disk_unused_num + 1;
 	page[B_pid][Bcount + 1].valid_flag = 1;
 	page[B_pid][Bcount + 1].on_disk_flag = 1;
 	//disk页面未使用的页面位置
 	disk_unused_num += 2;
 
+	//将A映射的disk页面写到新的空闲物理页面上
+	if(page[pid_now][Acount].on_disk_flag == 1){
+		//physical_address = (new_free_physical_pagenum >> 1) * 0x2000;
+		disk_address = (old_occupy_disk_pagenum >> 1) * 0x2000;
+		vt100_move_cursor(1, 10);
+		printk("Begin read d_ad:%x v_ad:%x        ",disk_address, virtual_address);
+
+		sdread(virtual_address, disk_address, 0x2000);
+
+		vt100_move_cursor(1, 10);
+		printk("finish read d_ad:%x v_ad:%x        ",disk_address, virtual_address);
+		vt100_move_cursor(1, 11);
+		printk("22222222222        ");
+
+	}
 
 	//A映射建立在B的物理页面上
 	page[pid_now][Acount].virtual_pageframe_num = BadVnum;
@@ -229,12 +270,6 @@ void do_page_replace(int BadVnum){
 	page[pid_now][Acount + 1].physical_pageframe_num = new_free_physical_pagenum + 1;
 	page[pid_now][Acount + 1].valid_flag = 1;
 	page[pid_now][Acount + 1].on_disk_flag = 0;	
-
-	//将A映射的disk页面写到新的空闲物理页面上
-	physical_address = new_free_physical_pagenum << 0x1000;
-	disk_address = old_occupy_disk_pagenum << 0x1000;
-
-	//sdread(physical_address, disk_address, 0x2000);
 
 
 	//覆盖B的内容
@@ -268,5 +303,8 @@ void do_page_replace(int BadVnum){
 	k1 = 0; 
 	set_C0_PAGEMASK(k1);
 
+	vt100_move_cursor(1, 11);
+	printk("index:%x        ",get_index());
+	
     set_tlb();		
 }

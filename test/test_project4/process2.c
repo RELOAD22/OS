@@ -83,20 +83,20 @@ static void scanf(int *mem)
 void rw_task1(void)
 {
 	int mem1, mem2 = 0;
-	int curs = 1;
+	int curs = 0;
 	int memory[4];
 	int i = 0;
 	int count;
 	for(i = 0; i < RW_TIMES; i++)
 	{
-		vt100_move_cursor(1, curs+i);
+		sys_move_cursor(0, curs+i);
 		scanf(&mem1);
-		vt100_move_cursor(1, curs+i);
+		sys_move_cursor(0, curs+i);
 		memory[i] = mem2 = rand();
 		*(int *)mem1 = mem2;
-		vt100_move_cursor(1, curs+i);
-		vt100_move_cursor(1, curs+i);
-		printk("Write: 0x%x, %d", mem1, mem2);
+		sys_move_cursor(0, curs+i);
+		sys_move_cursor(0, curs+i);
+		printf("Write: 0x%x, %d", mem1, mem2);
 		/*
 		vt100_move_cursor(1, 3);
 		printk("err");
@@ -104,17 +104,17 @@ void rw_task1(void)
 		printk("%x",count);
 		printk("success");*/
 	}
-	curs = 1 + RW_TIMES;
+	curs = 0 + RW_TIMES;
 	for(i = 0; i < RW_TIMES; i++)
 	{
-		vt100_move_cursor(1, curs+i);
+		sys_move_cursor(0, curs+i);
 		scanf(&mem1);
-		vt100_move_cursor(1, curs+i);
+		sys_move_cursor(0, curs+i);
 		memory[i+RW_TIMES] = *(int *)mem1;
 		if(memory[i+RW_TIMES] == memory[i])
-			printk("Read succeed: %d", memory[i+RW_TIMES]);
+			printf("Read succeed: %d", memory[i+RW_TIMES]);
 		else
-			printk("Read error: %d", memory[i+RW_TIMES]);
+			printf("Read error: %d", memory[i+RW_TIMES]);
 	}
 	while(1);
 	//Only input address.

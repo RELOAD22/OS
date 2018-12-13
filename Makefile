@@ -22,7 +22,7 @@ SRC_TEST	= ./test/test_shell.c
 SRC_TEST2	= ./test/test_project3/test_lock2.c ./test/test_project3/test_kill.c ./test/test_project3/test_semaphore.c ./test/test_project3/test_condition.c ./test/test_project3/test_barrier.c ./test/test_project3/test_sanguo.c
 #SRC_TEST2	= ./test/test_project3/test_barrier.c ./test/test_project3/test_condition.c ./test/test_project3/test_kill.c ./test/test_project3/test_sanguo.c ./test/test_project3/test_semaphore.c ./test/test_project3/test_lock2.c
 SRC_TEST4	= ./test/test_project4/process1.c ./test/test_project4/process2.c
-SRC_TEST5	= ./test/test_net/test_regs2.c
+SRC_TEST5	= ./test/test_net/test_regs3.c
 
 SRC_IMAGE	= ./tools/createimage.c
 

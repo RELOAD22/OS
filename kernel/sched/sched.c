@@ -64,7 +64,7 @@ void scheduler(void)
     }
     
     check_sleeping();
-    check_recv_package();
+    //check_recv_package();
 
 	if (current_running&&current_running->status != TASK_BLOCKED && current_running->killed == 0){
         queue_push(&ready_queue, current_running);

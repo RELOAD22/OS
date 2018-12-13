@@ -188,7 +188,7 @@ NESTED(enable_interrupt, 0, ra)
     mtc0    k0, CP0_COMPARE
 
     mfc0    k0, CP0_STATUS
-    ori     k0, 0x8001
+    ori     k0, 0xff01
     mtc0    k0, CP0_STATUS	
     jr  ra
 END(enable_interrupt)
@@ -246,8 +246,8 @@ END(exception_handler_entry)
 
 NESTED(handle_int, 0, sp)
 
-	mfc0 $a0, CP0_STATUS
-	mfc0 $a1, CP0_CAUSE	
+	mfc0    a0, CP0_STATUS
+	mfc0    a1, CP0_CAUSE	
 	jal interrupt_helper
 
     RESTORE_CONTEXT(USER)

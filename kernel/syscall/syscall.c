@@ -137,3 +137,18 @@ void barrier_wait(barrier_t *barrier)
 {
     invoke_syscall(SYSCALL_BARRIER_WAIT, barrier, IGNORE, IGNORE);
 }
+
+void sys_init_mac()
+{
+    invoke_syscall(SYSCALL_INIT_MAC, IGNORE, IGNORE, IGNORE); 
+}
+
+uint32_t sys_net_recv(uint32_t rd, uint32_t rd_phy, uint32_t daddr)
+{
+    invoke_syscall(SYSCALL_NET_RECV, rd, rd_phy, daddr); 
+}
+
+void sys_net_send(uint32_t td, uint32_t td_phy)
+{
+    invoke_syscall(SYSCALL_NET_SEND, td, td_phy, IGNORE); 
+}

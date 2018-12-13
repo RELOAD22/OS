@@ -252,7 +252,7 @@ NESTED(handle_int, 0, sp)
 
 	#恢复计时器
     mtc0    zero, CP0_COUNT
-	li      k0, 0x1000000
+	li      k0, 0x400000
     mtc0    k0, CP0_COMPARE
 	#开中断
     STI

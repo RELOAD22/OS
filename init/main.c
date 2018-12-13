@@ -29,6 +29,7 @@
 #include "stdio.h"
 #include "sched.h"
 #include "screen.h"
+#include "mac.h"
 #include "common.h"
 #include "syscall.h"
 #include "time.h"
@@ -255,6 +256,10 @@ static void init_syscall(void)
 	syscall[SYSCALL_BARRIER_INIT] = do_barrier_init;
 	syscall[SYSCALL_BARRIER_WAIT] = do_barrier_wait;
 	syscall[SYSCALL_GETPID] = do_getpid;
+
+	syscall[SYSCALL_INIT_MAC] = do_init_mac;
+	syscall[SYSCALL_NET_RECV] = do_net_recv;
+	syscall[SYSCALL_NET_SEND] = do_net_send;
 }
 
 // jump from bootloader.

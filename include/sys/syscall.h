@@ -71,6 +71,10 @@
 #define SYSCALL_BARRIER_INIT 50
 #define SYSCALL_BARRIER_WAIT 51
 
+#define SYSCALL_INIT_MAC 52
+#define SYSCALL_NET_RECV 53
+#define SYSCALL_NET_SEND 54
+
 /* syscall function pointer */
 int (*syscall[NUM_SYSCALLS])();
 
@@ -110,4 +114,7 @@ void sys_spawn(task_info_t *);
 void sys_kill(int);
 int sys_getpid();
 
+void sys_init_mac();
+uint32_t sys_net_recv(uint32_t rd, uint32_t rd_phy, uint32_t daddr);
+void sys_net_send(uint32_t td, uint32_t td_phy);
 #endif

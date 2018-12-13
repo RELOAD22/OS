@@ -44,6 +44,9 @@ queue_t ready_queue;
 /* block queue to wait */
 queue_t block_queue;
 
+/* recv wait queue to wait */
+queue_t recv_wait_queue;
+
 /* current running task PCB */
 pcb_t *current_running;
 pid_t process_id;
@@ -175,6 +178,7 @@ static void init_pcb()
 {
 	queue_init(&ready_queue);
 	queue_init(&block_queue);
+	queue_init(&recv_wait_queue);
 
 	stack_temp = STACK_BASE - STACK_SIZE; int i = 0;
 	int count;
@@ -260,6 +264,7 @@ static void init_syscall(void)
 	syscall[SYSCALL_INIT_MAC] = do_init_mac;
 	syscall[SYSCALL_NET_RECV] = do_net_recv;
 	syscall[SYSCALL_NET_SEND] = do_net_send;
+	syscall[SYSCALL_WAIT_RECV_PACKAGE] = do_wait_recv_package;
 }
 
 // jump from bootloader.

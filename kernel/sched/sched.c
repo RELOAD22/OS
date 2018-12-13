@@ -4,6 +4,7 @@
 #include "sched.h"
 #include "queue.h"
 #include "screen.h"
+#include "mac.h"
 
 //pcb_t pcb[NUM_MAX_TASK];
 
@@ -38,6 +39,21 @@ static void check_sleeping()
     }
 }
 
+static void check_recv_package()
+{
+    int count;
+    pcb_t *temp_pcb;
+
+    desc_t *desc_ptr = 0xa0f80000 + 16 * 63;
+    if(queue_is_empty(&recv_wait_queue))
+        return; 
+
+    if(((desc_ptr->tdes0) & 0x80000000) == 0){
+        temp_pcb = queue_dequeue(&recv_wait_queue);
+        temp_pcb->status = TASK_READY;
+	    queue_push(&ready_queue, temp_pcb);
+    }
+}
 //轮转调度
 
 void scheduler(void)
@@ -48,6 +64,7 @@ void scheduler(void)
     }
     
     check_sleeping();
+    check_recv_package();
 
 	if (current_running&&current_running->status != TASK_BLOCKED && current_running->killed == 0){
         queue_push(&ready_queue, current_running);

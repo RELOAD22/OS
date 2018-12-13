@@ -5,8 +5,19 @@
 #include "syscall.h"
 #include "sched.h"
 #include "test5.h"
+#define  SEND_DESC_BASE 0xa0f10000
+#define  RECV_DESC_BASE 0xa0f80000
+#define  SEND_DESC_BASE_PHY 0x0f10000
+#define  RECV_DESC_BASE_PHY 0x0f80000
+#define  DESC_SIZE 16
 
+#define  SEND_BUFFER_BASE 0xa1f00000
+#define  RECV_BUFFER_BASE 0xa1f80000
+#define  SEND_BUFFER_BASE_PHY 0x1f00000
+#define  RECV_BUFFER_BASE_PHY 0x1f80000
+#define  BUFFER_SIZE 1024
 
+queue_t recv_block_queue;
 desc_t *send_desc;
 desc_t *receive_desc;
 uint32_t cnt = 1; //record the time of iqr_mac
@@ -28,12 +39,103 @@ void clear_interrupt()
 
 static void send_desc_init(mac_t *mac)
 {
-   
+    int count;
+    desc_t *desc_ptr;
+    uint32_t DESC_LOC_TEMP = SEND_DESC_BASE;
+    uint32_t DESC_LOC_TEMP_PHY = SEND_DESC_BASE_PHY;
+    uint32_t BUFFER_LOC_TEMP = SEND_BUFFER_BASE;
+    uint32_t BUFFER_LOC_TEMP_PHY = SEND_BUFFER_BASE_PHY;
+    int list_len = 256;
+    uint32_t *w_ptr; int count_p;
+    for(count = 0; count < list_len - 1; count ++){
+
+        desc_ptr = DESC_LOC_TEMP;
+
+        desc_ptr->tdes0 = 0x80000000;
+        desc_ptr->tdes1 = 0x81000200;
+        desc_ptr->tdes2 = BUFFER_LOC_TEMP_PHY;
+        desc_ptr->tdes3 = DESC_LOC_TEMP_PHY + DESC_SIZE;
+
+        w_ptr = BUFFER_LOC_TEMP;
+        for(count_p = 0; count_p < PSIZE; ++count_p){
+            *w_ptr = buffer[count_p];
+            ++w_ptr;
+        }
+
+        DESC_LOC_TEMP += DESC_SIZE;
+        DESC_LOC_TEMP_PHY += DESC_SIZE;
+        BUFFER_LOC_TEMP += BUFFER_SIZE;
+        BUFFER_LOC_TEMP_PHY += BUFFER_SIZE;
+    }
+    desc_ptr = DESC_LOC_TEMP;
+    desc_ptr->tdes0 = 0x80000000;
+    desc_ptr->tdes1 = 0x83000200;
+    desc_ptr->tdes2 = BUFFER_LOC_TEMP_PHY;
+    desc_ptr->tdes3 = SEND_DESC_BASE_PHY;
+
+    w_ptr = BUFFER_LOC_TEMP;
+    for(count_p = 0; count_p < PSIZE; ++count_p){
+        *w_ptr = buffer[count_p];
+        ++w_ptr;
+    }
+
+    mac->saddr = SEND_BUFFER_BASE_PHY + 0xa0000000;
+    mac->saddr_phy = SEND_BUFFER_BASE_PHY;
+
+    mac->td = SEND_DESC_BASE;
+    mac->td_phy = SEND_DESC_BASE_PHY;
 }
 
 static void recv_desc_init(mac_t *mac)
 {
+    int count;
+    desc_t *desc_ptr;
+    uint32_t DESC_LOC_TEMP = RECV_DESC_BASE;
+    uint32_t DESC_LOC_TEMP_PHY = RECV_DESC_BASE_PHY;
+    uint32_t BUFFER_LOC_TEMP = RECV_BUFFER_BASE;
+    uint32_t BUFFER_LOC_TEMP_PHY = RECV_BUFFER_BASE_PHY;
+    int list_len = 256;
+    uint32_t *w_ptr; int count_p;
+    for(count = 0; count < list_len - 1; count ++){
+
+        desc_ptr = DESC_LOC_TEMP;
+
+        desc_ptr->tdes0 = 0x80000000;
+        desc_ptr->tdes1 = 0x81000200;
+        desc_ptr->tdes2 = BUFFER_LOC_TEMP_PHY;
+        desc_ptr->tdes3 = DESC_LOC_TEMP_PHY + DESC_SIZE;
+
+        w_ptr = BUFFER_LOC_TEMP;
+        for(count_p = 0; count_p < PSIZE; ++count_p){
+            *w_ptr = 0;
+            ++w_ptr;
+        }
+
+        DESC_LOC_TEMP += DESC_SIZE;
+        DESC_LOC_TEMP_PHY += DESC_SIZE;
+        BUFFER_LOC_TEMP += BUFFER_SIZE;
+        BUFFER_LOC_TEMP_PHY += BUFFER_SIZE;
+    }
+    desc_ptr = DESC_LOC_TEMP;
+    desc_ptr->tdes0 = 0x80000000;
+    desc_ptr->tdes1 = 0x83000200;
+    desc_ptr->tdes2 = BUFFER_LOC_TEMP_PHY;
+    desc_ptr->tdes3 = RECV_DESC_BASE_PHY;
+
+    w_ptr = BUFFER_LOC_TEMP;
+    for(count_p = 0; count_p < PSIZE; ++count_p){
+        *w_ptr = 0;
+        ++w_ptr;
+    }
+
+    mac->daddr = RECV_BUFFER_BASE_PHY + 0xa0000000;
+    mac->daddr_phy = RECV_BUFFER_BASE_PHY;
+
+    mac->rd = RECV_DESC_BASE;
+    mac->rd_phy = RECV_DESC_BASE_PHY; 
+
 }
+
 
 
 static void mii_dul_force(mac_t *mac)
@@ -133,11 +235,12 @@ void phy_regs_task2()
         printf("[RECV TASK]     net recv is fault!                       ");
     }
 
-    ch_flag = 0;
+    //ch_flag = 0;
+    /*
     for (i = 0; i < PNUM; i++)
     {
         recv_flag[i] = 0;
-    }
+    }*/
 
     uint32_t cnt = 0;
     uint32_t *Recv_desc;

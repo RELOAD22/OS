@@ -246,6 +246,8 @@ END(exception_handler_entry)
 
 NESTED(handle_int, 0, sp)
 
+	mfc0 $a0, CP0_STATUS
+	mfc0 $a1, CP0_CAUSE	
 	jal interrupt_helper
 
     RESTORE_CONTEXT(USER)

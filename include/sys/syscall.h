@@ -74,6 +74,7 @@
 #define SYSCALL_INIT_MAC 52
 #define SYSCALL_NET_RECV 53
 #define SYSCALL_NET_SEND 54
+#define SYSCALL_WAIT_RECV_PACKAGE 55
 
 /* syscall function pointer */
 int (*syscall[NUM_SYSCALLS])();
@@ -117,4 +118,5 @@ int sys_getpid();
 void sys_init_mac();
 uint32_t sys_net_recv(uint32_t rd, uint32_t rd_phy, uint32_t daddr);
 void sys_net_send(uint32_t td, uint32_t td_phy);
+void sys_wait_recv_package();
 #endif

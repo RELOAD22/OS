@@ -152,3 +152,8 @@ void sys_net_send(uint32_t td, uint32_t td_phy)
 {
     invoke_syscall(SYSCALL_NET_SEND, td, td_phy, IGNORE); 
 }
+
+void sys_wait_recv_package()
+{
+    invoke_syscall(SYSCALL_WAIT_RECV_PACKAGE, IGNORE, IGNORE, IGNORE); 
+}

@@ -1,6 +1,6 @@
 #include "mac.h"
 #include "irq.h"
-
+#include "sched.h"
 
 
 uint32_t reg_read_32(uint32_t addr)
@@ -243,8 +243,35 @@ void irq_enable(int IRQn)
 {
 }
 
+void print_buffer(uint32_t *buffer)
+{
+    int num_row = 5;    //一一共多少行
+    int num_line = 5;   //一共多少列
+    int countr, countl; 
+    int init_loction = 6;
+    for(countr = 0; countr < num_row; ++ countr){
+        sys_move_cursor(1,init_loction + countr);    
+
+        for(countl = 0; countl < num_line; ++ countl){
+            printf("%08x ",*(buffer + countr*num_line + countl));
+        }
+
+    }
+}
+
 void check_recv(mac_t *test_mac)
 {
+    int count; uint32_t time = 1000000;
+    uint32_t buffer_loc = test_mac->daddr;
+
+    for(count = 0; count < 64; ++count){
+        print_buffer(buffer_loc);
+        buffer_loc += 1024;
+        while (time)
+        {
+            time--;
+        }
+    }
 }
 
 void set_sram_ctr()
@@ -297,6 +324,11 @@ uint32_t do_net_recv(uint32_t rd, uint32_t rd_phy, uint32_t daddr)
     desc_t *desc_ptr;
     for(count = 0; count < 32; ++count){
         reg_write_32(DMA_BASE_ADDR + DmaRxPollDemand, 1);
+    }
+
+    /*
+    for(count = 0; count < 32; ++count){
+        reg_write_32(DMA_BASE_ADDR + DmaRxPollDemand, 1);
         desc_ptr = recv_desv_loc;
 
 
@@ -327,7 +359,7 @@ uint32_t do_net_recv(uint32_t rd, uint32_t rd_phy, uint32_t daddr)
         }
         buffer_loc += 1024;
         recv_desv_loc += 16;
-    }
+    }*/
     return 0;
 }
 
@@ -370,5 +402,9 @@ void do_init_mac(void)
 
 void do_wait_recv_package(void)
 {
-
+    // block the current_running task into the queue
+    queue_push(&recv_wait_queue, current_running);
+	current_running->status = TASK_BLOCKED;
+    //调用调度器，注意此时current所指的线程不会放至就绪队列
+    scheduler();
 }

@@ -13,8 +13,23 @@ static void irq_timer()
     scheduler();
 }
 
+static void irq_mac()
+{
+    // TODO clock interrupt handler.
+    // scheduler, time counter in here to do, emmmmmm maybe.
+    time_elapsed += 0x100;
+    screen_reflush();
+    scheduler();
+}
+
 void interrupt_helper(uint32_t status, uint32_t cause)
 {
+    int IP = (cause & 0xff00) >> 8;
+    /*
+    if(IP == 0x8)
+        irq_mac();
+    else
+        irq_timer();*/
     irq_timer();
     // TODO interrupt handler.
     // Leve3 exception Handler.

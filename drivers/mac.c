@@ -283,11 +283,52 @@ void set_mac_addr(mac_t *mac)
 uint32_t do_net_recv(uint32_t rd, uint32_t rd_phy, uint32_t daddr)
 {
    //PLEASE enable MAC-RX
+    reg_write_32(DMA_BASE_ADDR + DmaRxBaseAddr, rd_phy); //0x02202002); // start tx, rx
+    reg_write_32(DMA_BASE_ADDR + GmacConfig, reg_read_32(DMA_BASE_ADDR + GmacConfig) | GmacRxEnable);
 
     reg_write_32(DMA_BASE_ADDR + 0x18, reg_read_32(GMAC_BASE_ADDR + 0x18) | 0x02200002); // start tx, rx
     reg_write_32(DMA_BASE_ADDR + 0x1c, 0x10001 | (1 << 6));
     
     //you should add some code to start recv and check recv packages
+    int count; int count_b;
+    uint32_t buffer_loc = daddr;
+    uint32_t *temp;
+    uint32_t recv_desv_loc = rd;
+    desc_t *desc_ptr;
+    for(count = 0; count < 32; ++count){
+        reg_write_32(DMA_BASE_ADDR + DmaRxPollDemand, 1);
+        desc_ptr = recv_desv_loc;
+
+
+
+        while(((desc_ptr->tdes0) & 0x80000000) != 0){
+        vt100_move_cursor(1, 5);
+        printk("tdes0:%x ", desc_ptr->tdes0);
+        }
+        vt100_move_cursor(1, 5);
+        for(count_b = 0; count_b < 8; ++count_b){
+            temp = buffer_loc + count_b*4;
+            printk("%x ", *temp);
+        }
+        vt100_move_cursor(1, 6);
+        for(count_b = 8; count_b < 16; ++count_b){
+            temp = buffer_loc + count_b*4;
+            printk("%x ", *temp);
+        }
+        vt100_move_cursor(1, 7);
+        for(count_b = 16; count_b < 24; ++count_b){
+            temp = buffer_loc + count_b*4;
+            printk("%x ", *temp);
+        }
+        vt100_move_cursor(1, 8);
+        for(count_b = 24; count_b < 32; ++count_b){
+            temp = buffer_loc + count_b*4;
+            printk("%x ", *temp);
+        }
+        buffer_loc += 1024;
+        recv_desv_loc += 16;
+    }
+    return 0;
 }
 
 void do_net_send(uint32_t td, uint32_t td_phy)
@@ -295,11 +336,19 @@ void do_net_send(uint32_t td, uint32_t td_phy)
      
    
      //PLEASE enable MAC-TX
+    reg_write_32(DMA_BASE_ADDR + DmaTxBaseAddr, td_phy); //0x02202002); // start tx, rx
+    reg_write_32(DMA_BASE_ADDR + GmacConfig, reg_read_32(DMA_BASE_ADDR + GmacConfig) | GmacTxEnable);
+
     
     reg_write_32(DMA_BASE_ADDR + 0x18, reg_read_32(DMA_BASE_ADDR + 0x18) | 0x02202000); //0x02202002); // start tx, rx
     reg_write_32(DMA_BASE_ADDR + 0x1c, 0x10001 | (1 << 6));
 
     //you should add some code to start send packages
+    int count;
+    for(count = 0; count < 4; ++count){
+        reg_write_32(DMA_BASE_ADDR + DmaTxPollDemand, 1);
+    }
+
 }
 
 void do_init_mac(void)

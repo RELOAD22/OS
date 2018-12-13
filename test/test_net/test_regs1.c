@@ -5,6 +5,17 @@
 #include "syscall.h"
 #include "sched.h"
 #include "test5.h"
+#define  SEND_DESC_BASE 0xa0f10000
+#define  RECV_DESC_BASE 0xa0f80000
+#define  SEND_DESC_BASE_PHY 0x0f10000
+#define  RECV_DESC_BASE_PHY 0x0f80000
+#define  DESC_SIZE 16
+
+#define  SEND_BUFFER_BASE 0xa1f00000
+#define  RECV_BUFFER_BASE 0xa1f80000
+#define  SEND_BUFFER_BASE_PHY 0x1f00000
+#define  RECV_BUFFER_BASE_PHY 0x1f80000
+#define  BUFFER_SIZE 1024
 
 queue_t recv_block_queue;
 desc_t *send_desc;
@@ -28,12 +39,101 @@ void clear_interrupt()
 
 static void send_desc_init(mac_t *mac)
 {
-    
+    int count;
+    desc_t *desc_ptr;
+    uint32_t DESC_LOC_TEMP = SEND_DESC_BASE;
+    uint32_t DESC_LOC_TEMP_PHY = SEND_DESC_BASE_PHY;
+    uint32_t BUFFER_LOC_TEMP = SEND_BUFFER_BASE;
+    uint32_t BUFFER_LOC_TEMP_PHY = SEND_BUFFER_BASE_PHY;
+    int list_len = 256;
+    uint32_t *w_ptr; int count_p;
+    for(count = 0; count < list_len - 1; count ++){
+
+        desc_ptr = DESC_LOC_TEMP;
+
+        desc_ptr->tdes0 = 0x80000000;
+        desc_ptr->tdes1 = 0x81000200;
+        desc_ptr->tdes2 = BUFFER_LOC_TEMP_PHY;
+        desc_ptr->tdes3 = DESC_LOC_TEMP_PHY + DESC_SIZE;
+
+        w_ptr = BUFFER_LOC_TEMP;
+        for(count_p = 0; count_p < PSIZE; ++count_p){
+            *w_ptr = buffer[count_p];
+            ++w_ptr;
+        }
+
+        DESC_LOC_TEMP += DESC_SIZE;
+        DESC_LOC_TEMP_PHY += DESC_SIZE;
+        BUFFER_LOC_TEMP += BUFFER_SIZE;
+        BUFFER_LOC_TEMP_PHY += BUFFER_SIZE;
+    }
+    desc_ptr = DESC_LOC_TEMP;
+    desc_ptr->tdes0 = 0x80000000;
+    desc_ptr->tdes1 = 0x83000200;
+    desc_ptr->tdes2 = BUFFER_LOC_TEMP_PHY;
+    desc_ptr->tdes3 = SEND_DESC_BASE_PHY;
+
+    w_ptr = BUFFER_LOC_TEMP;
+    for(count_p = 0; count_p < PSIZE; ++count_p){
+        *w_ptr = buffer[count_p];
+        ++w_ptr;
+    }
+
+    mac->saddr = SEND_BUFFER_BASE_PHY + 0xa0000000;
+    mac->saddr_phy = SEND_BUFFER_BASE_PHY;
+
+    mac->td = SEND_DESC_BASE;
+    mac->td_phy = SEND_DESC_BASE_PHY;
 }
 
 static void recv_desc_init(mac_t *mac)
 {
-    
+    int count;
+    desc_t *desc_ptr;
+    uint32_t DESC_LOC_TEMP = RECV_DESC_BASE;
+    uint32_t DESC_LOC_TEMP_PHY = RECV_DESC_BASE_PHY;
+    uint32_t BUFFER_LOC_TEMP = RECV_BUFFER_BASE;
+    uint32_t BUFFER_LOC_TEMP_PHY = RECV_BUFFER_BASE_PHY;
+    int list_len = 256;
+    uint32_t *w_ptr; int count_p;
+    for(count = 0; count < list_len - 1; count ++){
+
+        desc_ptr = DESC_LOC_TEMP;
+
+        desc_ptr->tdes0 = 0x80000000;
+        desc_ptr->tdes1 = 0x81000200;
+        desc_ptr->tdes2 = BUFFER_LOC_TEMP_PHY;
+        desc_ptr->tdes3 = DESC_LOC_TEMP_PHY + DESC_SIZE;
+
+        w_ptr = BUFFER_LOC_TEMP;
+        for(count_p = 0; count_p < PSIZE; ++count_p){
+            *w_ptr = 0;
+            ++w_ptr;
+        }
+
+        DESC_LOC_TEMP += DESC_SIZE;
+        DESC_LOC_TEMP_PHY += DESC_SIZE;
+        BUFFER_LOC_TEMP += BUFFER_SIZE;
+        BUFFER_LOC_TEMP_PHY += BUFFER_SIZE;
+    }
+    desc_ptr = DESC_LOC_TEMP;
+    desc_ptr->tdes0 = 0x80000000;
+    desc_ptr->tdes1 = 0x83000200;
+    desc_ptr->tdes2 = BUFFER_LOC_TEMP_PHY;
+    desc_ptr->tdes3 = RECV_DESC_BASE_PHY;
+
+    w_ptr = BUFFER_LOC_TEMP;
+    for(count_p = 0; count_p < PSIZE; ++count_p){
+        *w_ptr = 0;
+        ++w_ptr;
+    }
+
+    mac->daddr = RECV_BUFFER_BASE_PHY + 0xa0000000;
+    mac->daddr_phy = RECV_BUFFER_BASE_PHY;
+
+    mac->rd = RECV_DESC_BASE;
+    mac->rd_phy = RECV_DESC_BASE_PHY; 
+
 }
 
 
@@ -53,7 +153,7 @@ static void mii_dul_force(mac_t *mac)
 
 
 
-//Dma Operation Mode Register
+//Dma Operation Mode Register 0x0018
 void dma_control_init(mac_t *mac, uint32_t init_value)
 {
     reg_write_32(mac->dma_addr + DmaControl, init_value);
@@ -83,10 +183,10 @@ void phy_regs_task1()
 
     sys_move_cursor(1, print_location);
     printf("> [SEND TASK] start send package.               \n");
-               
+
   
     uint32_t cnt = 0;
-    i = 4;
+    i = 1;
     while (i > 0)
     {
         sys_net_send(test_mac.td, test_mac.td_phy);
@@ -95,6 +195,15 @@ void phy_regs_task1()
         printf("> [SEND TASK] totally send package %d !        \n", cnt);
         i--;
     }
+    desc_t *desc_ptr = SEND_DESC_BASE;
+    uint32_t temp1 = desc_ptr->tdes0;
+    uint32_t temp2 = (desc_ptr+1)->tdes0;
+    uint32_t temp3 = (desc_ptr+2)->tdes0;
+    uint32_t temp4 = (desc_ptr+3)->tdes0;
+    sys_move_cursor(1, print_location + 1);
+    printf("> tdes0:%x %x %x %X               \n",temp1,temp2,temp3,temp4);
+
+
     sys_exit();
 }
 

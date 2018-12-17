@@ -256,6 +256,11 @@ NESTED(handle_int, 0, sp)
     mtc0    zero, CP0_COUNT
 	li      k0, 0x400000
     mtc0    k0, CP0_COMPARE
+
+    mfc0    k0, CP0_CAUSE
+    and     k0, 0xFFFFFF00
+    mtc0    k0, CP0_CAUSE	
+
 	#开中断
     STI
 	eret

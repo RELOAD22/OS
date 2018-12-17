@@ -238,7 +238,8 @@ void print_rx_dscrb(mac_t *mac)
 void irq_mac(void)
 {
     screen_reflush();
-
+    clear_interrupt();
+    irq_enable(1);//清除中断
     int count;
     pcb_t *temp_pcb;
 
@@ -252,15 +253,23 @@ void irq_mac(void)
         temp_pcb = queue_dequeue(&recv_wait_queue);
         temp_pcb->status = TASK_READY;
 	    queue_push(&ready_queue, temp_pcb);
+        vt100_move_cursor(1,12);
+        printk("success irqmac");   
     }
     scheduler();       
 }
 
 void irq_enable(int IRQn)
 {
-    reg_write_32(0xbfd01060, reg_read_32(0xbfd01060) | 0x8);    
-    reg_write_32(0xbfd01064, reg_read_32(0xbfd01064) | 0x8);
-    reg_write_32(0xbfd0105c, reg_read_32(0xbfd0105c) | 0x8);
+    //reg_write_32(GMAC_BASE_ADDR + GmacInterruptStatus, 0);
+    //sys_move_cursor(1,1);
+    //printf_mac_regs();
+    
+    reg_write_32(0xbfd01064, 0xFFFFFFFF);   //INT1_CLR
+    reg_write_32(0xbfd01068, 0xFFFFFFFF);   //INT1_POL
+    reg_write_32(0xbfd0106c, 0);    //INT1_EDGE
+
+    reg_write_32(0xbfd0105c, reg_read_32(0xbfd0105c) | 0x8);    //INT1_EN
 }
 
 void print_buffer(uint32_t *buffer)

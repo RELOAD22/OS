@@ -23,8 +23,8 @@ void interrupt_helper(uint32_t status, uint32_t cause)
         irq_mac();
         vt100_move_cursor(1,10);
         printk("irq_mac success");
-    vt100_move_cursor(1,11);
-    printk("status:%08x cause:%08x", status, cause);        
+        vt100_move_cursor(1,11);
+        printk("status:%08x cause:%08x", status, cause);        
     }
     else
         irq_timer();

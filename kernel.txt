@@ -2054,7 +2054,7 @@ a080205c:	00000000 	nop
 a0802060:	8fc20010 	lw	v0,16(s8)
 a0802064:	8fc30018 	lw	v1,24(s8)
 a0802068:	00431021 	addu	v0,v0,v1
-a080206c:	24040001 	li	a0,1
+a080206c:	00002021 	move	a0,zero
 a0802070:	00402821 	move	a1,v0
 a0802074:	0c20181f 	jal	a080607c <sys_move_cursor>
 a0802078:	00000000 	nop
@@ -10664,7 +10664,7 @@ a080a270:	3c02a1f8 	lui	v0,0xa1f8
 a080a274:	afc20010 	sw	v0,16(s8)
 a080a278:	3c0201f8 	lui	v0,0x1f8
 a080a27c:	afc2000c 	sw	v0,12(s8)
-a080a280:	24020100 	li	v0,256
+a080a280:	24020040 	li	v0,64
 a080a284:	afc20008 	sw	v0,8(s8)
 a080a288:	afc00020 	sw	zero,32(s8)
 a080a28c:	082028d5 	j	a080a354 <recv_desc_init+0x104>
@@ -10941,149 +10941,147 @@ a080a6a4:	24040001 	li	a0,1
 a080a6a8:	24050001 	li	a1,1
 a080a6ac:	0c20181f 	jal	a080607c <sys_move_cursor>
 a080a6b0:	00000000 	nop
-a080a6b4:	0c200683 	jal	a0801a0c <printf_dma_regs>
+a080a6b4:	0c20187e 	jal	a08061f8 <sys_exit>
 a080a6b8:	00000000 	nop
-a080a6bc:	0c20187e 	jal	a08061f8 <sys_exit>
-a080a6c0:	00000000 	nop
-a080a6c4:	03c0e821 	move	sp,s8
-a080a6c8:	8fbf005c 	lw	ra,92(sp)
-a080a6cc:	8fbe0058 	lw	s8,88(sp)
-a080a6d0:	27bd0060 	addiu	sp,sp,96
-a080a6d4:	03e00008 	jr	ra
-a080a6d8:	00000000 	nop
+a080a6bc:	03c0e821 	move	sp,s8
+a080a6c0:	8fbf005c 	lw	ra,92(sp)
+a080a6c4:	8fbe0058 	lw	s8,88(sp)
+a080a6c8:	27bd0060 	addiu	sp,sp,96
+a080a6cc:	03e00008 	jr	ra
+a080a6d0:	00000000 	nop
 
-a080a6dc <phy_regs_task2>:
-a080a6dc:	27bdffa0 	addiu	sp,sp,-96
-a080a6e0:	afbf005c 	sw	ra,92(sp)
-a080a6e4:	afbe0058 	sw	s8,88(sp)
-a080a6e8:	03a0f021 	move	s8,sp
-a080a6ec:	24020001 	li	v0,1
-a080a6f0:	afc2001c 	sw	v0,28(s8)
+a080a6d4 <phy_regs_task2>:
+a080a6d4:	27bdffa0 	addiu	sp,sp,-96
+a080a6d8:	afbf005c 	sw	ra,92(sp)
+a080a6dc:	afbe0058 	sw	s8,88(sp)
+a080a6e0:	03a0f021 	move	s8,sp
+a080a6e4:	24020001 	li	v0,1
+a080a6e8:	afc2001c 	sw	v0,28(s8)
+a080a6ec:	3c02bfe1 	lui	v0,0xbfe1
+a080a6f0:	afc20030 	sw	v0,48(s8)
 a080a6f4:	3c02bfe1 	lui	v0,0xbfe1
-a080a6f8:	afc20030 	sw	v0,48(s8)
-a080a6fc:	3c02bfe1 	lui	v0,0xbfe1
-a080a700:	34421000 	ori	v0,v0,0x1000
-a080a704:	afc20034 	sw	v0,52(s8)
-a080a708:	24020400 	li	v0,1024
-a080a70c:	afc20028 	sw	v0,40(s8)
-a080a710:	24020040 	li	v0,64
-a080a714:	afc2002c 	sw	v0,44(s8)
-a080a718:	27c20028 	addiu	v0,s8,40
-a080a71c:	00402021 	move	a0,v0
-a080a720:	0c202894 	jal	a080a250 <recv_desc_init>
-a080a724:	00000000 	nop
-a080a728:	27c20028 	addiu	v0,s8,40
-a080a72c:	00402021 	move	a0,v0
-a080a730:	3c020020 	lui	v0,0x20
-a080a734:	3445001c 	ori	a1,v0,0x1c
-a080a738:	0c20294a 	jal	a080a528 <dma_control_init>
-a080a73c:	00000000 	nop
-a080a740:	27c20028 	addiu	v0,s8,40
-a080a744:	00402021 	move	a0,v0
-a080a748:	0c2027fc 	jal	a0809ff0 <clear_interrupt>
-a080a74c:	00000000 	nop
-a080a750:	27c20028 	addiu	v0,s8,40
-a080a754:	00402021 	move	a0,v0
-a080a758:	0c20290c 	jal	a080a430 <mii_dul_force>
-a080a75c:	00000000 	nop
-a080a760:	24020001 	li	v0,1
-a080a764:	afc20018 	sw	v0,24(s8)
-a080a768:	8fc2001c 	lw	v0,28(s8)
-a080a76c:	24040001 	li	a0,1
-a080a770:	00402821 	move	a1,v0
-a080a774:	0c20181f 	jal	a080607c <sys_move_cursor>
-a080a778:	00000000 	nop
-a080a77c:	3c02a081 	lui	v0,0xa081
-a080a780:	2444bfa8 	addiu	a0,v0,-16472
-a080a784:	0c201c9b 	jal	a080726c <printf>
-a080a788:	00000000 	nop
-a080a78c:	8fc40018 	lw	a0,24(s8)
-a080a790:	0c2007e6 	jal	a0801f98 <irq_enable>
-a080a794:	00000000 	nop
-a080a798:	8fc2001c 	lw	v0,28(s8)
-a080a79c:	24040001 	li	a0,1
-a080a7a0:	00402821 	move	a1,v0
-a080a7a4:	0c20181f 	jal	a080607c <sys_move_cursor>
-a080a7a8:	00000000 	nop
-a080a7ac:	3c02a081 	lui	v0,0xa081
-a080a7b0:	2444bfdc 	addiu	a0,v0,-16420
-a080a7b4:	0c201c9b 	jal	a080726c <printf>
-a080a7b8:	00000000 	nop
-a080a7bc:	8fc2004c 	lw	v0,76(s8)
-a080a7c0:	8fc30054 	lw	v1,84(s8)
-a080a7c4:	8fc6003c 	lw	a2,60(s8)
-a080a7c8:	00402021 	move	a0,v0
-a080a7cc:	00602821 	move	a1,v1
-a080a7d0:	0c20198b 	jal	a080662c <sys_net_recv>
-a080a7d4:	00000000 	nop
-a080a7d8:	afc20020 	sw	v0,32(s8)
-a080a7dc:	afc00014 	sw	zero,20(s8)
-a080a7e0:	8fc2004c 	lw	v0,76(s8)
-a080a7e4:	244203f0 	addiu	v0,v0,1008
-a080a7e8:	afc20010 	sw	v0,16(s8)
-a080a7ec:	8fc20010 	lw	v0,16(s8)
-a080a7f0:	8c420000 	lw	v0,0(v0)
-a080a7f4:	0441000c 	bgez	v0,a080a828 <phy_regs_task2+0x14c>
-a080a7f8:	00000000 	nop
-a080a7fc:	8fc2001c 	lw	v0,28(s8)
-a080a800:	24040001 	li	a0,1
-a080a804:	00402821 	move	a1,v0
-a080a808:	0c20181f 	jal	a080607c <sys_move_cursor>
-a080a80c:	00000000 	nop
-a080a810:	3c02a081 	lui	v0,0xa081
-a080a814:	2444c008 	addiu	a0,v0,-16376
-a080a818:	0c201c9b 	jal	a080726c <printf>
+a080a6f8:	34421000 	ori	v0,v0,0x1000
+a080a6fc:	afc20034 	sw	v0,52(s8)
+a080a700:	24020400 	li	v0,1024
+a080a704:	afc20028 	sw	v0,40(s8)
+a080a708:	24020040 	li	v0,64
+a080a70c:	afc2002c 	sw	v0,44(s8)
+a080a710:	27c20028 	addiu	v0,s8,40
+a080a714:	00402021 	move	a0,v0
+a080a718:	0c202894 	jal	a080a250 <recv_desc_init>
+a080a71c:	00000000 	nop
+a080a720:	27c20028 	addiu	v0,s8,40
+a080a724:	00402021 	move	a0,v0
+a080a728:	3c020020 	lui	v0,0x20
+a080a72c:	3445001c 	ori	a1,v0,0x1c
+a080a730:	0c20294a 	jal	a080a528 <dma_control_init>
+a080a734:	00000000 	nop
+a080a738:	27c20028 	addiu	v0,s8,40
+a080a73c:	00402021 	move	a0,v0
+a080a740:	0c2027fc 	jal	a0809ff0 <clear_interrupt>
+a080a744:	00000000 	nop
+a080a748:	27c20028 	addiu	v0,s8,40
+a080a74c:	00402021 	move	a0,v0
+a080a750:	0c20290c 	jal	a080a430 <mii_dul_force>
+a080a754:	00000000 	nop
+a080a758:	24020001 	li	v0,1
+a080a75c:	afc20018 	sw	v0,24(s8)
+a080a760:	8fc2001c 	lw	v0,28(s8)
+a080a764:	24040001 	li	a0,1
+a080a768:	00402821 	move	a1,v0
+a080a76c:	0c20181f 	jal	a080607c <sys_move_cursor>
+a080a770:	00000000 	nop
+a080a774:	3c02a081 	lui	v0,0xa081
+a080a778:	2444bfa8 	addiu	a0,v0,-16472
+a080a77c:	0c201c9b 	jal	a080726c <printf>
+a080a780:	00000000 	nop
+a080a784:	8fc40018 	lw	a0,24(s8)
+a080a788:	0c2007e6 	jal	a0801f98 <irq_enable>
+a080a78c:	00000000 	nop
+a080a790:	8fc2001c 	lw	v0,28(s8)
+a080a794:	24040001 	li	a0,1
+a080a798:	00402821 	move	a1,v0
+a080a79c:	0c20181f 	jal	a080607c <sys_move_cursor>
+a080a7a0:	00000000 	nop
+a080a7a4:	3c02a081 	lui	v0,0xa081
+a080a7a8:	2444bfdc 	addiu	a0,v0,-16420
+a080a7ac:	0c201c9b 	jal	a080726c <printf>
+a080a7b0:	00000000 	nop
+a080a7b4:	8fc2004c 	lw	v0,76(s8)
+a080a7b8:	8fc30054 	lw	v1,84(s8)
+a080a7bc:	8fc6003c 	lw	a2,60(s8)
+a080a7c0:	00402021 	move	a0,v0
+a080a7c4:	00602821 	move	a1,v1
+a080a7c8:	0c20198b 	jal	a080662c <sys_net_recv>
+a080a7cc:	00000000 	nop
+a080a7d0:	afc20020 	sw	v0,32(s8)
+a080a7d4:	afc00014 	sw	zero,20(s8)
+a080a7d8:	8fc2004c 	lw	v0,76(s8)
+a080a7dc:	244203f0 	addiu	v0,v0,1008
+a080a7e0:	afc20010 	sw	v0,16(s8)
+a080a7e4:	8fc20010 	lw	v0,16(s8)
+a080a7e8:	8c420000 	lw	v0,0(v0)
+a080a7ec:	0441000c 	bgez	v0,a080a820 <phy_regs_task2+0x14c>
+a080a7f0:	00000000 	nop
+a080a7f4:	8fc2001c 	lw	v0,28(s8)
+a080a7f8:	24040001 	li	a0,1
+a080a7fc:	00402821 	move	a1,v0
+a080a800:	0c20181f 	jal	a080607c <sys_move_cursor>
+a080a804:	00000000 	nop
+a080a808:	3c02a081 	lui	v0,0xa081
+a080a80c:	2444c008 	addiu	a0,v0,-16376
+a080a810:	0c201c9b 	jal	a080726c <printf>
+a080a814:	00000000 	nop
+a080a818:	0c2019b4 	jal	a08066d0 <sys_wait_recv_package>
 a080a81c:	00000000 	nop
-a080a820:	0c2019b4 	jal	a08066d0 <sys_wait_recv_package>
-a080a824:	00000000 	nop
-a080a828:	27c20028 	addiu	v0,s8,40
-a080a82c:	00402021 	move	a0,v0
-a080a830:	0c200848 	jal	a0802120 <check_recv>
+a080a820:	27c20028 	addiu	v0,s8,40
+a080a824:	00402021 	move	a0,v0
+a080a828:	0c200848 	jal	a0802120 <check_recv>
+a080a82c:	00000000 	nop
+a080a830:	0c20187e 	jal	a08061f8 <sys_exit>
 a080a834:	00000000 	nop
-a080a838:	0c20187e 	jal	a08061f8 <sys_exit>
-a080a83c:	00000000 	nop
-a080a840:	03c0e821 	move	sp,s8
-a080a844:	8fbf005c 	lw	ra,92(sp)
-a080a848:	8fbe0058 	lw	s8,88(sp)
-a080a84c:	27bd0060 	addiu	sp,sp,96
-a080a850:	03e00008 	jr	ra
-a080a854:	00000000 	nop
+a080a838:	03c0e821 	move	sp,s8
+a080a83c:	8fbf005c 	lw	ra,92(sp)
+a080a840:	8fbe0058 	lw	s8,88(sp)
+a080a844:	27bd0060 	addiu	sp,sp,96
+a080a848:	03e00008 	jr	ra
+a080a84c:	00000000 	nop
 
-a080a858 <phy_regs_task3>:
-a080a858:	27bdffe0 	addiu	sp,sp,-32
-a080a85c:	afbf001c 	sw	ra,28(sp)
-a080a860:	afbe0018 	sw	s8,24(sp)
-a080a864:	03a0f021 	move	s8,sp
-a080a868:	24020001 	li	v0,1
-a080a86c:	afc20010 	sw	v0,16(s8)
-a080a870:	8fc20010 	lw	v0,16(s8)
-a080a874:	24040001 	li	a0,1
-a080a878:	00402821 	move	a1,v0
-a080a87c:	0c20181f 	jal	a080607c <sys_move_cursor>
-a080a880:	00000000 	nop
-a080a884:	3c02a081 	lui	v0,0xa081
-a080a888:	2444c030 	addiu	a0,v0,-16336
-a080a88c:	0c201c9b 	jal	a080726c <printf>
+a080a850 <phy_regs_task3>:
+a080a850:	27bdffe0 	addiu	sp,sp,-32
+a080a854:	afbf001c 	sw	ra,28(sp)
+a080a858:	afbe0018 	sw	s8,24(sp)
+a080a85c:	03a0f021 	move	s8,sp
+a080a860:	24020001 	li	v0,1
+a080a864:	afc20010 	sw	v0,16(s8)
+a080a868:	8fc20010 	lw	v0,16(s8)
+a080a86c:	24040001 	li	a0,1
+a080a870:	00402821 	move	a1,v0
+a080a874:	0c20181f 	jal	a080607c <sys_move_cursor>
+a080a878:	00000000 	nop
+a080a87c:	3c02a081 	lui	v0,0xa081
+a080a880:	2444c030 	addiu	a0,v0,-16336
+a080a884:	0c201c9b 	jal	a080726c <printf>
+a080a888:	00000000 	nop
+a080a88c:	0c20197b 	jal	a08065ec <sys_init_mac>
 a080a890:	00000000 	nop
-a080a894:	0c20197b 	jal	a08065ec <sys_init_mac>
-a080a898:	00000000 	nop
-a080a89c:	8fc20010 	lw	v0,16(s8)
-a080a8a0:	24040001 	li	a0,1
-a080a8a4:	00402821 	move	a1,v0
-a080a8a8:	0c20181f 	jal	a080607c <sys_move_cursor>
-a080a8ac:	00000000 	nop
-a080a8b0:	3c02a081 	lui	v0,0xa081
-a080a8b4:	2444c05c 	addiu	a0,v0,-16292
-a080a8b8:	0c201c9b 	jal	a080726c <printf>
+a080a894:	8fc20010 	lw	v0,16(s8)
+a080a898:	24040001 	li	a0,1
+a080a89c:	00402821 	move	a1,v0
+a080a8a0:	0c20181f 	jal	a080607c <sys_move_cursor>
+a080a8a4:	00000000 	nop
+a080a8a8:	3c02a081 	lui	v0,0xa081
+a080a8ac:	2444c05c 	addiu	a0,v0,-16292
+a080a8b0:	0c201c9b 	jal	a080726c <printf>
+a080a8b4:	00000000 	nop
+a080a8b8:	0c20187e 	jal	a08061f8 <sys_exit>
 a080a8bc:	00000000 	nop
-a080a8c0:	0c20187e 	jal	a08061f8 <sys_exit>
-a080a8c4:	00000000 	nop
-a080a8c8:	03c0e821 	move	sp,s8
-a080a8cc:	8fbf001c 	lw	ra,28(sp)
-a080a8d0:	8fbe0018 	lw	s8,24(sp)
-a080a8d4:	27bd0020 	addiu	sp,sp,32
-a080a8d8:	03e00008 	jr	ra
-a080a8dc:	00000000 	nop
+a080a8c0:	03c0e821 	move	sp,s8
+a080a8c4:	8fbf001c 	lw	ra,28(sp)
+a080a8c8:	8fbe0018 	lw	s8,24(sp)
+a080a8cc:	27bd0020 	addiu	sp,sp,32
+a080a8d0:	03e00008 	jr	ra
+a080a8d4:	00000000 	nop
 	...
 
 a080a8e8 <.pic.sdwrite>:

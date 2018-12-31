@@ -94,7 +94,7 @@ static void recv_desc_init(mac_t *mac)
     uint32_t DESC_LOC_TEMP_PHY = RECV_DESC_BASE_PHY;
     uint32_t BUFFER_LOC_TEMP = RECV_BUFFER_BASE;
     uint32_t BUFFER_LOC_TEMP_PHY = RECV_BUFFER_BASE_PHY;
-    int list_len = 256;
+    int list_len = 64;
     uint32_t *w_ptr; int count_p;
     for(count = 0; count < list_len - 1; count ++){
 
@@ -200,7 +200,6 @@ void phy_regs_task1()
         i--;
     }
     sys_move_cursor(1,1);
-    printf_dma_regs();
     sys_exit();
 }
 

@@ -279,7 +279,7 @@ void print_buffer(uint32_t *buffer)
     int countr, countl; 
     int init_loction = 6;
     for(countr = 0; countr < num_row; ++ countr){
-        sys_move_cursor(1,init_loction + countr);    
+        sys_move_cursor(0,init_loction + countr);    
 
         for(countl = 0; countl < num_line; ++ countl){
             printf("%08x ",*(buffer + countr*num_line + countl));

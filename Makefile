@@ -12,6 +12,7 @@ SRC_LOCK	= ./kernel/locking/lock.c ./kernel/locking/sem.c ./kernel/locking/cond.
 SRC_SHELL   = ./kernel/shell/shell.c
 #SRC_LOCK	= ./kernel/locking/lock.c ./kernel/locking/barrier.c ./kernel/locking/cond.c ./kernel/locking/sem.c
 SRC_MM          = ./kernel/mm/memory.c
+SRC_FILE          = ./kernel/file/file.c
 
 SRC_SCHED	= ./kernel/sched/sched.c ./kernel/sched/queue.c ./kernel/sched/time.c
 SRC_SYSCALL	= ./kernel/syscall/syscall.c
@@ -29,10 +30,11 @@ SRC_IMAGE	= ./tools/createimage.c
 bootblock: $(SRC_BOOT)
 	${CC} -G 0 -O2 -fno-pic -mno-abicalls -fno-builtin -nostdinc -mips3 -Ttext=0xffffffffa0800000 -N -o bootblock $(SRC_BOOT) -nostdlib -e main -Wl,-m -Wl,elf32ltsmip -T ld.script
 
-main : $(SRC_ARCH) $(SRC_DRIVER) $(SRC_INIT) $(SRC_INT) $(SRC_LOCK) $(SRC_MM) $(SRC_SHELL) $(SRC_SCHED) $(SRC_SYSCALL) $(SRC_LIBS) $(SRC_TEST) $(SRC_TEST2) $(SRC_TEST4) $(SRC_TEST5)
+main : $(SRC_ARCH) $(SRC_DRIVER) $(SRC_INIT) $(SRC_INT) $(SRC_LOCK) $(SRC_MM) $(SRC_FILE) $(SRC_SHELL) $(SRC_SCHED) $(SRC_SYSCALL) $(SRC_LIBS) $(SRC_TEST) $(SRC_TEST2) $(SRC_TEST4) $(SRC_TEST5)
 	${CC} -G 0 -O0 -Iinclude -Ilibs -Iarch/mips/include -Idrivers -Iinclude/os -Iinclude/sys -Itest -Itest/test_project2 -Itest/test_project3 -Itest/test_project4 -Itest/test_net \
 	-fno-pic -mno-abicalls -fno-builtin -nostdinc -mips3 -Ttext=0xffffffffa0800200 -N -o main \
-	$(SRC_ARCH) $(SRC_DRIVER) $(SRC_INIT) $(SRC_INT) $(SRC_LOCK) $(SRC_MM) $(SRC_SHELL) $(SRC_SCHED) $(SRC_SYSCALL) $(SRC_PROC) $(SRC_LIBS) $(SRC_TEST) $(SRC_TEST2) $(SRC_TEST4) $(SRC_TEST5) -L. -lepmon -nostdlib -Wl,-m -Wl,elf32ltsmip -T ld.script		
+	$(SRC_ARCH) $(SRC_DRIVER) $(SRC_INIT) $(SRC_INT) $(SRC_LOCK) $(SRC_MM) $(SRC_FILE) $(SRC_SHELL) $(SRC_SCHED) $(SRC_SYSCALL) $(SRC_PROC) $(SRC_LIBS) $(SRC_TEST) $(SRC_TEST2) $(SRC_TEST4) $(SRC_TEST5) -L libs/ -lepmon -nostdlib -Wl,-m -Wl,elf32ltsmip -T ld.script	
+		
 
 createimage: $(SRC_IMAGE)
 	gcc $(SRC_IMAGE) -o createimage

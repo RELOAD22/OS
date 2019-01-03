@@ -157,3 +157,28 @@ void sys_wait_recv_package()
 {
     invoke_syscall(SYSCALL_WAIT_RECV_PACKAGE, IGNORE, IGNORE, IGNORE); 
 }
+
+void sys_mkfs()
+{
+    invoke_syscall(SYSCALL_MKFS, IGNORE, IGNORE, IGNORE); 
+}
+
+void sys_statfs()
+{
+    invoke_syscall(SYSCALL_STATFS, IGNORE, IGNORE, IGNORE); 
+}
+
+void sys_ls()
+{
+    invoke_syscall(SYSCALL_LS, IGNORE, IGNORE, IGNORE); 
+}
+
+void sys_mkdir()
+{
+    invoke_syscall(SYSCALL_MKDIR, IGNORE, IGNORE, IGNORE); 
+}
+
+void sys_cd()
+{
+    invoke_syscall(SYSCALL_CD, IGNORE, IGNORE, IGNORE); 
+}

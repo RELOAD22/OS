@@ -76,6 +76,12 @@
 #define SYSCALL_NET_SEND 54
 #define SYSCALL_WAIT_RECV_PACKAGE 55
 
+#define SYSCALL_MKFS 56
+#define SYSCALL_STATFS 57
+#define SYSCALL_LS 58
+#define SYSCALL_MKDIR 59
+#define SYSCALL_CD 60
+
 /* syscall function pointer */
 int (*syscall[NUM_SYSCALLS])();
 
@@ -119,4 +125,10 @@ void sys_init_mac();
 uint32_t sys_net_recv(uint32_t rd, uint32_t rd_phy, uint32_t daddr);
 void sys_net_send(uint32_t td, uint32_t td_phy);
 void sys_wait_recv_package();
+
+void sys_mkfs();
+void sys_statfs();
+void sys_ls();
+void sys_mkdir();
+void sys_cd();
 #endif

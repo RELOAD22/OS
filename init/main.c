@@ -34,6 +34,7 @@
 #include "syscall.h"
 #include "time.h"
 #include "shell.h"
+#include "file.h"
 //注意在shell.c中也有该宏定义
 #define STACK_BASE  0xa0f00000
 #define STACK_SIZE 0x100000
@@ -265,6 +266,12 @@ static void init_syscall(void)
 	syscall[SYSCALL_NET_RECV] = do_net_recv;
 	syscall[SYSCALL_NET_SEND] = do_net_send;
 	syscall[SYSCALL_WAIT_RECV_PACKAGE] = do_wait_recv_package;
+
+	syscall[SYSCALL_MKFS] = do_mkfs;
+	syscall[SYSCALL_STATFS] = do_statfs;
+	syscall[SYSCALL_LS] = do_ls;
+	syscall[SYSCALL_MKDIR] = do_mkdir;
+	syscall[SYSCALL_CD] = do_cd;
 }
 
 // jump from bootloader.

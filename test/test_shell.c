@@ -4,6 +4,9 @@
 #include "screen.h"
 #include "syscall.h"
 
+char split_command[10][20] = {0};   //命令  分割用
+char path[8][16] = {0};   //当前所在路径
+char oldpath[8][16] = {0};   //路径保存用
 static void disable_interrupt_shell()
 {
     uint32_t cp0_status = get_cp0_status();
@@ -76,7 +79,7 @@ int shell_location = 16;    //shell开始位置
 int shell_location_new = 16;    //打印位置
 
 int valid_input(char ch){
-    if((ch>='a' && ch <= 'z')||(ch>='0' && ch <= '9')|| ch == ' '){
+    if((ch>='a' && ch <= 'z')||(ch>='0' && ch <= '9')|| ch == ' '|| ch == '/' || ch == '.'){
         command[command_put_index] = ch;
         command_put_index++;
     }
@@ -93,8 +96,22 @@ int valid_input(char ch){
     }
     return 1;
 }
+void print_path(char *name){  
+	while (*name)
+	{
+		printf("%c",*(name++));
+	}
+    printf("/");
+}
+
 void shell_print_begin(){
     printf("> root@UCAS_OS:");
+    int i;int j;
+    printf("/");
+    for(i = 0; path[i][0] != 0; ++i){
+        print_path(path[i]);
+    }
+    printf("$");
 }
 
 void clear_line(){
@@ -141,6 +158,33 @@ void kill_func(int pid){
     printf("kill process pid = %d", pid);
 }
 
+void mkfs_func(){
+    sys_mkfs();
+    /*
+    printf("   magic : 0x67373\n");
+    printf("   num sector : , start sector : \n");
+    printf("   inode map offset : \n");
+    printf("   sector map offset : \n");
+    printf("   inode offset : \n");
+    printf("   data offset : \n");
+    printf("   inode entry size : 64B, dir entry size : 32B");
+    */
+}
+
+void statfs_func(){
+    sys_statfs();
+}
+
+void ls_func(){
+    sys_ls();
+}
+void mkdir_func(){
+    sys_mkdir();
+}
+void cd_func(){
+    sys_cd();
+}
+
 int str2int(const char *str)
 {
     int temp = 0;
@@ -162,7 +206,7 @@ int str2int(const char *str)
     return temp;
 }
 
-char split_command[3][20] = {0};   //命令  分割用
+
 
 int command_split(const char *str){
     //分割命令,返回命令的个数
@@ -176,10 +220,17 @@ int command_split(const char *str){
             codc_index = 0;
             continue;
         }
+        if(command[total_index] == '/'){
+            split_command[cod_index][codc_index] = 0;
+            cod_index++;
+            codc_index = 0;
+            continue;
+        }
         split_command[cod_index][codc_index] = command[total_index];
         ++codc_index;
     }
     split_command[cod_index][codc_index] = 0;
+    split_command[cod_index+1][0] = 0;
 
     return cod_index + 1;
 }
@@ -190,6 +241,11 @@ void do_command(){
     char *exec_cod = "exec";
     char *kill_cod = "kill";
     char *clearall_cod  = "clearall";
+    char *mkfs_cod = "mkfs";
+    char *statfs_cod = "statfs";
+    char *mkdir_cod = "mkdir";
+    char *ls_cod = "ls";
+    char *cd_cod = "cd";
     int multicod = 0;
 
     if(command_split(command) > 1){
@@ -219,6 +275,26 @@ void do_command(){
     else if(multicod && (strcmp(split_command[0], kill_cod) == 0)){
         //kill命令
         kill_func(str2int(split_command[1]));
+    }
+    else if(strcmp(command, mkfs_cod) == 0){
+        //初始化文件系统
+        mkfs_func();
+    }
+    else if(multicod && (strcmp(split_command[0], mkdir_cod) == 0)){
+        //新建目录
+        mkdir_func();
+    }
+    else if(multicod && (strcmp(split_command[0], cd_cod) == 0)){
+        //进入目录
+        cd_func();
+    }
+    else if(strcmp(command, statfs_cod) == 0){
+        //打印文件系统信息
+        statfs_func();
+    }
+    else if(strcmp(command, ls_cod) == 0){
+        //打印文件信息
+        ls_func();
     }
     else{  
         //输入错误命令

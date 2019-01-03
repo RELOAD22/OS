@@ -32,6 +32,10 @@
 
 #include "sched.h"
 
+extern char split_command[10][20]; 
+extern char path[8][16];   //当前所在路径
+extern char oldpath[8][16];   //路径保存用
+
 extern struct task_info *test_tasks[16];
 extern int num_test_tasks;
 

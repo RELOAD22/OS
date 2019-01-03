@@ -78,4 +78,10 @@ void do_ls();
 void do_mkdir();
 
 void do_cd();
+
+void do_rmdir();
+
+void do_touch();
+
+void do_cat();
 #endif

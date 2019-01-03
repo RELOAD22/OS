@@ -81,6 +81,9 @@
 #define SYSCALL_LS 58
 #define SYSCALL_MKDIR 59
 #define SYSCALL_CD 60
+#define SYSCALL_RMDIR 61
+#define SYSCALL_TOUCH 62
+#define SYSCALL_CAT 63
 
 /* syscall function pointer */
 int (*syscall[NUM_SYSCALLS])();
@@ -131,4 +134,7 @@ void sys_statfs();
 void sys_ls();
 void sys_mkdir();
 void sys_cd();
+void sys_rmdir();
+void sys_touch();
+void sys_cat();
 #endif

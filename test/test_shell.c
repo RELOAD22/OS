@@ -184,6 +184,15 @@ void mkdir_func(){
 void cd_func(){
     sys_cd();
 }
+void rmdir_func(){
+    sys_rmdir();
+}
+void touch_func(){
+    sys_touch();
+}
+void cat_func(){
+    sys_cat();
+}
 
 int str2int(const char *str)
 {
@@ -246,6 +255,9 @@ void do_command(){
     char *mkdir_cod = "mkdir";
     char *ls_cod = "ls";
     char *cd_cod = "cd";
+    char *rmdir_cod = "rmdir";
+    char *touch_cod = "touch";
+    char *cat_cod = "cat";
     int multicod = 0;
 
     if(command_split(command) > 1){
@@ -287,6 +299,18 @@ void do_command(){
     else if(multicod && (strcmp(split_command[0], cd_cod) == 0)){
         //进入目录
         cd_func();
+    }
+    else if(multicod && (strcmp(split_command[0], rmdir_cod) == 0)){
+        //删除目录
+        rmdir_func();
+    }
+    else if(multicod && (strcmp(split_command[0], touch_cod) == 0)){
+        //新建文件
+        touch_func();
+    }
+    else if(multicod && (strcmp(split_command[0], cat_cod) == 0)){
+        //打印文件
+        cat_func();
     }
     else if(strcmp(command, statfs_cod) == 0){
         //打印文件系统信息

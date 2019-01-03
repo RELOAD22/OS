@@ -182,3 +182,18 @@ void sys_cd()
 {
     invoke_syscall(SYSCALL_CD, IGNORE, IGNORE, IGNORE); 
 }
+
+void sys_rmdir()
+{
+    invoke_syscall(SYSCALL_RMDIR, IGNORE, IGNORE, IGNORE); 
+}
+
+void sys_touch()
+{
+    invoke_syscall(SYSCALL_TOUCH, IGNORE, IGNORE, IGNORE); 
+}
+
+void sys_cat()
+{
+    invoke_syscall(SYSCALL_CAT, IGNORE, IGNORE, IGNORE); 
+}

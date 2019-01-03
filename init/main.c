@@ -272,6 +272,9 @@ static void init_syscall(void)
 	syscall[SYSCALL_LS] = do_ls;
 	syscall[SYSCALL_MKDIR] = do_mkdir;
 	syscall[SYSCALL_CD] = do_cd;
+	syscall[SYSCALL_RMDIR] = do_rmdir;
+	syscall[SYSCALL_TOUCH] = do_touch;
+	syscall[SYSCALL_CAT] = do_cat;
 }
 
 // jump from bootloader.

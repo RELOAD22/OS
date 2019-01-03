@@ -252,6 +252,16 @@ inode_t *init_inode(uint32_t inode_num)
     return inode_loc_v;
 }
 
+inode_t *init_file_inode(uint32_t inode_num)
+{
+    inode_t *inode_loc_v = INODE_BASE_V + inode_num * 64;
+    inode_loc_v->MODE = 2;
+    inode_loc_v->inode_num = inode_num;
+    inode_loc_v->Owner_Info = 0;
+    inode_loc_v->size = 0;
+    set_inode_map(inode_num, 1);
+    return inode_loc_v;
+}
 
 const char *current_name=".";
 const char *parrent_name="..";
@@ -282,6 +292,13 @@ uint32_t init_dentry(inode_t *inode_p, char *newname, uint32_t parrent_inode_num
     set_block_map(freeblock_num, 1);
     write_block(dentry_loc_v, freeblock_num);
 
+    return freeblock_num;
+}
+
+uint32_t init_file()
+{
+    uint32_t freeblock_num = find_free_block();
+    set_block_map(freeblock_num, 1);
     return freeblock_num;
 }
 const char *bin_name = "bin";
@@ -395,6 +412,139 @@ void create_dir(uint32_t parrent_inode_num, char *c_dentryname)
     write_map();
 }
 
+
+
+void delete_dir(uint32_t parrent_inode_num, char *c_dentryname)
+{
+    read_map();
+    read_inode(parrent_inode_num);
+
+    //读入父目录inode的目录，判断是否已经存在
+    uint8_t parrent_dentry_buffer[512]; 
+    clear_buffer(parrent_dentry_buffer);
+    dentry_t *parrent_dentry = seek_inode_dentry(parrent_inode_num);
+    sd_card_read(parrent_dentry_buffer, parrent_dentry, 1*512);
+   
+    if(find_in_dentry(parrent_dentry_buffer, c_dentryname) == 0){
+        vt100_move_cursor(screen_cursor_x, screen_cursor_y+1);
+        printk("delete error! no such dentry in here");
+        screen_cursor_y += 1;
+        return;
+    }
+
+    dentry_t *parrent_dentry_v = parrent_dentry_buffer;
+    /*在父目录存在*/
+    int i = 0; 
+    for(i = 0; i < 16; ++i){
+        if(parrent_dentry_v->dentrycontent[i].valid == 0)
+            continue;
+        if(strcmp(parrent_dentry_v->dentrycontent[i].name, c_dentryname) == 0)
+            break;
+    }
+    //清除父目录中的记录
+    parrent_dentry_v->dentrycontent[i].valid = 0;
+    //读入INODE
+    uint32_t delete_inode_num = parrent_dentry_v->dentrycontent[i].inode_num;
+    read_inode(delete_inode_num);
+    inode_t *delete_inode_p = INODE_BASE_V + delete_inode_num * 64;
+    //释放map中的空间
+    set_inode_map(delete_inode_num, 0);
+    set_block_map(delete_inode_p->direct_blocks[0], 0);
+    //更改到父目录中
+    sd_card_write(parrent_dentry_buffer, parrent_dentry, 1*512);
+    write_map();
+}
+
+void create_file(uint32_t parrent_inode_num, char *c_filename)
+{
+    read_map();
+    read_inode(parrent_inode_num);
+
+    //读入父目录inode的目录，判断是否已经存在
+    uint8_t parrent_dentry_buffer[512]; 
+    clear_buffer(parrent_dentry_buffer);
+    dentry_t *parrent_dentry = seek_inode_dentry(parrent_inode_num);
+    sd_card_read(parrent_dentry_buffer, parrent_dentry, 1*512);
+   
+    if(find_in_dentry(parrent_dentry_buffer, c_filename) == 1){
+        vt100_move_cursor(screen_cursor_x, screen_cursor_y+1);
+        printk("create error! same dentry in here");
+        screen_cursor_y += 1;
+        return;
+    }
+
+    /*在父目录不存在*/
+
+    //分配并读入新INODE
+    uint32_t inode_num = find_free_inode();   
+    read_inode(inode_num);
+
+    //初始化新目录的inode
+    inode_t *inode_p = init_file_inode(inode_num);
+
+    //初始化目录的dentry并赋值入inode
+    inode_p->direct_blocks[0] = init_file();
+
+    //添加到父目录中
+    add_in_dentry(parrent_dentry_buffer, c_filename, inode_num);
+    sd_card_write(parrent_dentry_buffer, parrent_dentry, 1*512);
+
+    write_inode(inode_num);
+    write_map();
+}
+
+void do_touch()
+{
+    create_file(inodeofDentry_now, split_command[1]);
+}
+
+void do_cat()
+{
+    read_inode(inodeofDentry_now);
+
+    //读入父目录inode的目录，判断是否已经存在
+    uint8_t parrent_dentry_buffer[512]; 
+    clear_buffer(parrent_dentry_buffer);
+    dentry_t *parrent_dentry = seek_inode_dentry(inodeofDentry_now);
+    sd_card_read(parrent_dentry_buffer, parrent_dentry, 1*512);
+   
+    if(find_in_dentry(parrent_dentry_buffer, split_command[1]) == 0){
+        vt100_move_cursor(screen_cursor_x, screen_cursor_y+1);
+        printk("error! no such file in here");
+        screen_cursor_y += 1;
+        return;
+    }
+
+    dentry_t *parrent_dentry_v = parrent_dentry_buffer;
+    /*在父目录存在*/
+    int i = 0; 
+    for(i = 0; i < 16; ++i){
+        if(parrent_dentry_v->dentrycontent[i].valid == 0)
+            continue;
+        if(strcmp(parrent_dentry_v->dentrycontent[i].name, split_command[1]) == 0)
+            break;
+    }
+
+    uint32_t file_inode_num = parrent_dentry_v->dentrycontent[i].inode_num;
+    read_inode(file_inode_num);
+    inode_t *file_inode_p = INODE_BASE_V + file_inode_num * 64;
+
+    uint32_t length = file_inode_p->size;
+
+    uint32_t block_num = file_inode_p->direct_blocks[0];
+    uint8_t file_buffer[512]; 
+    clear_buffer(file_buffer);
+    sd_card_read(file_buffer, START_BASE + block_num * 4096, 1*512);
+    vt100_move_cursor(screen_cursor_x, screen_cursor_y+1);
+    i = 0;
+    while(length--){
+        printk("%c", file_buffer[i]);
+        ++i;
+        if(file_buffer[i] == '\n')
+            screen_cursor_y += 1;
+    }
+}
+
 void do_ls()
 {
     read_inode(inodeofDentry_now);
@@ -425,9 +575,7 @@ void print_name(char *name){
 
     printk(" | ");
 }
-void do_mkdir(){
 
-}
 void save_path(){
     int i; int j;
     for(i = 0; i < 8; ++i){
@@ -544,6 +692,158 @@ void do_cd(){
     vt100_move_cursor(1,11);
     printk("inodenow: %d", inodeofDentry_now);
 
+}
+
+void do_mkdir(){
+    uint32_t beforeinode = inodeofDentry_now;
+
+    char seek_path[5][16] = {0};
+    int i = 0;
+    int index; int length;
+    vt100_move_cursor(1,9);
+    print_name(split_command[0]);  
+    print_name(split_command[1]);
+    print_name(split_command[2]);
+    print_name(split_command[3]);
+    print_name(split_command[4]);  
+    if(split_command[1][0] == 0){
+        //绝对路径寻址
+        for(i = 2; split_command[i][0] != 0; ++i){
+            for(index = 0; split_command[i][index] != 0; ++index){
+                seek_path[i - 2][index] = split_command[i][index];
+            }
+            seek_path[i - 2][index] = 0;
+        }
+
+        inodeofDentry_now = 0;  //回到根目录
+        length = i - 2;
+    }else{
+        //相对路径寻址
+        for(i = 1; split_command[i][0] != 0; ++i){
+            for(index = 0; split_command[i][index] != 0; ++index){
+                seek_path[i - 1][index] = split_command[i][index];
+            }
+            seek_path[i - 1][index] = 0;
+        }
+        length = i - 1;        
+    }
+    printk("     ");
+    print_name(seek_path[0]);  
+    i = 0;
+    while(i < length - 1){
+        read_inode(inodeofDentry_now);
+        uint8_t dentry_buffer[512]; 
+        clear_buffer(dentry_buffer);
+
+        dentry_t *dentry = seek_inode_dentry(inodeofDentry_now);
+        sd_card_read(dentry_buffer, dentry, 1*512);
+
+        dentry_t *dentry_now = dentry_buffer;
+
+        vt100_move_cursor(1,10);
+        //遍历目录
+        for(index = 0; index < 16; ++index){
+            if(dentry_now->dentrycontent[index].valid == 0)
+                continue;
+                
+            print_name(dentry_now->dentrycontent[index].name);       
+            if(strcmp(dentry_now->dentrycontent[index].name, seek_path[i]) == 0){
+                //如果找到了相应目录,进入下一次循环
+                inodeofDentry_now = dentry_now->dentrycontent[index].inode_num;
+                break;
+            }
+        }
+        if(index == 16){
+            //未找到目录,返回最初的目录
+            inodeofDentry_now = beforeinode;
+            vt100_move_cursor(screen_cursor_x, screen_cursor_y+1);
+            printk("ERROR,NO SUCH DENTRY!");
+            return;
+        }
+        ++i;
+    }
+
+    create_dir(inodeofDentry_now, seek_path[length - 1]);
+
+    vt100_move_cursor(1,11);
+    printk("inode   : %d", inodeofDentry_now);
+    inodeofDentry_now = beforeinode;
+}
+
+void do_rmdir(){
+    uint32_t beforeinode = inodeofDentry_now;
+
+    char seek_path[5][16] = {0};
+    int i = 0;
+    int index; int length;
+    vt100_move_cursor(1,9);
+    print_name(split_command[0]);  
+    print_name(split_command[1]);
+    print_name(split_command[2]);
+    print_name(split_command[3]);
+    print_name(split_command[4]);  
+    if(split_command[1][0] == 0){
+        //绝对路径寻址
+        for(i = 2; split_command[i][0] != 0; ++i){
+            for(index = 0; split_command[i][index] != 0; ++index){
+                seek_path[i - 2][index] = split_command[i][index];
+            }
+            seek_path[i - 2][index] = 0;
+        }
+
+        inodeofDentry_now = 0;  //回到根目录
+        length = i - 2;
+    }else{
+        //相对路径寻址
+        for(i = 1; split_command[i][0] != 0; ++i){
+            for(index = 0; split_command[i][index] != 0; ++index){
+                seek_path[i - 1][index] = split_command[i][index];
+            }
+            seek_path[i - 1][index] = 0;
+        }
+        length = i - 1;        
+    }
+    printk("     ");
+    print_name(seek_path[0]);  
+    i = 0;
+    while(i < length - 1){
+        read_inode(inodeofDentry_now);
+        uint8_t dentry_buffer[512]; 
+        clear_buffer(dentry_buffer);
+
+        dentry_t *dentry = seek_inode_dentry(inodeofDentry_now);
+        sd_card_read(dentry_buffer, dentry, 1*512);
+
+        dentry_t *dentry_now = dentry_buffer;
+
+        vt100_move_cursor(1,10);
+        //遍历目录
+        for(index = 0; index < 16; ++index){
+            if(dentry_now->dentrycontent[index].valid == 0)
+                continue;
+                
+            print_name(dentry_now->dentrycontent[index].name);       
+            if(strcmp(dentry_now->dentrycontent[index].name, seek_path[i]) == 0){
+                //如果找到了相应目录,进入下一次循环
+                inodeofDentry_now = dentry_now->dentrycontent[index].inode_num;
+                break;
+            }
+        }
+        if(index == 16){
+            //未找到目录,返回最初的目录
+            inodeofDentry_now = beforeinode;
+            vt100_move_cursor(screen_cursor_x, screen_cursor_y+1);
+            printk("ERROR,NO SUCH DENTRY!");
+            return;
+        }
+        ++i;
+    }
+
+    delete_dir(inodeofDentry_now, seek_path[length - 1]);
+
+    vt100_move_cursor(1,11);
+    printk("inode   : %d", inodeofDentry_now);
+    inodeofDentry_now = beforeinode;
 }
 
 void read_inode(uint32_t inode_num)

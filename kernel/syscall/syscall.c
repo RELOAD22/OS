@@ -197,3 +197,23 @@ void sys_cat()
 {
     invoke_syscall(SYSCALL_CAT, IGNORE, IGNORE, IGNORE); 
 }
+
+int sys_fopen(char *name, int access)
+{
+    invoke_syscall(SYSCALL_FOPEN, name, access, IGNORE); 
+}
+
+int sys_fwrite(int fd, char *buff, int size)
+{
+    invoke_syscall(SYSCALL_FWRITE, fd, buff, size); 
+}
+
+int sys_fread(int fd, char *buff, int size)
+{
+    invoke_syscall(SYSCALL_FREAD, fd, buff, size); 
+}
+
+void sys_fclose(int fd)
+{
+    invoke_syscall(SYSCALL_FCLOSE, fd, IGNORE, IGNORE); 
+}

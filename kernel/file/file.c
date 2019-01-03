@@ -846,6 +846,120 @@ void do_rmdir(){
     inodeofDentry_now = beforeinode;
 }
 
+int get_inode_from_dennow(char *name){
+    read_inode(inodeofDentry_now);
+
+    //读入父目录inode的目录，判断是否已经存在
+    uint8_t parrent_dentry_buffer[512]; 
+    clear_buffer(parrent_dentry_buffer);
+    dentry_t *parrent_dentry = seek_inode_dentry(inodeofDentry_now);
+    sd_card_read(parrent_dentry_buffer, parrent_dentry, 1*512);
+   
+    if(find_in_dentry(parrent_dentry_buffer, name) == 0){
+        vt100_move_cursor(screen_cursor_x, screen_cursor_y+1);
+        printk("error! no such file in here");
+        screen_cursor_y += 1;
+        return -1;
+    }
+
+    dentry_t *parrent_dentry_v = parrent_dentry_buffer;
+    /*在父目录存在*/
+    int i = 0; 
+    for(i = 0; i < 16; ++i){
+        if(parrent_dentry_v->dentrycontent[i].valid == 0)
+            continue;
+        if(strcmp(parrent_dentry_v->dentrycontent[i].name, name) == 0)
+            break;
+    }
+
+    return parrent_dentry_v->dentrycontent[i].inode_num;
+}
+
+
+int do_fopen(char *name, int access)
+{
+    int result = get_inode_from_dennow(name);
+    if(result == -1)
+        return -1;
+
+    int i = 0;
+    for(i = 0; i < 20; ++i){
+        if(fd_a[i].valid == 0){
+            fd_a[i].inode_num = result;
+            fd_a[i].file_wp = 0;
+            fd_a[i].file_rp = 0;
+            return i;
+        }
+    }
+
+    fd_a[0].inode_num = result;
+    fd_a[0].file_wp = 0;
+    fd_a[0].file_rp = 0;
+    return 0;
+}
+
+int do_fwrite(int fd, char *buff, int size)
+{
+    uint32_t file_inode_num = fd_a[fd].inode_num;
+    read_inode(file_inode_num);
+    inode_t *file_inode_p = INODE_BASE_V + file_inode_num * 64;
+
+    uint32_t block_num = file_inode_p->direct_blocks[0];
+    uint8_t file_buffer[512]; 
+    clear_buffer(file_buffer);
+    sd_card_read(file_buffer, START_BASE + block_num * 4096, 1*512);
+
+    int i = 0;
+
+    for(i = 0; i < size; ++i){
+		file_buffer[i + fd_a[fd].file_wp] = *(buff++);
+	}
+    fd_a[fd].file_wp += size;    
+    sd_card_write(file_buffer, START_BASE + block_num * 4096, 1*512);
+
+    file_inode_p->size = fd_a[fd].file_wp;
+    write_inode(file_inode_num);
+
+    return size;
+}
+
+
+int do_fread(int fd, char *buff, int size)
+{
+    uint32_t file_inode_num = fd_a[fd].inode_num;
+    read_inode(file_inode_num);
+    inode_t *file_inode_p = INODE_BASE_V + file_inode_num * 64;
+
+    uint32_t block_num = file_inode_p->direct_blocks[0];
+    uint8_t file_buffer[512]; 
+    clear_buffer(file_buffer);
+    sd_card_read(file_buffer, START_BASE + block_num * 4096, 1*512);
+
+    int i = 0;
+
+    for(i = 0; i < size; ++i){
+        *(buff++) = file_buffer[i + fd_a[fd].file_rp];
+	}
+    fd_a[fd].file_rp += size;   
+
+    return size;
+}
+
+void do_fclose(int fd)
+{
+    fd_a[fd].file_wp = 0;
+    fd_a[fd].file_rp = 0;
+    fd_a[fd].valid = 0;
+    return 0;
+}
+
+
+
+
+
+
+
+
 void read_inode(uint32_t inode_num)
 {
     uint32_t inode_sector_v = ((INODE_BASE_V + inode_num * 64)/512) * 512 ;

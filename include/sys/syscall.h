@@ -48,6 +48,11 @@
 #define SYSCALL_CURSOR 22
 #define SYSCALL_REFLUSH 23
 
+#define SYSCALL_FOPEN 24
+#define SYSCALL_FWRITE 25
+#define SYSCALL_FREAD 26
+#define SYSCALL_FCLOSE 27
+
 #define SYSCALL_MUTEX_LOCK_INIT 30
 #define SYSCALL_MUTEX_LOCK_ACQUIRE 31
 #define SYSCALL_MUTEX_LOCK_RELEASE 32
@@ -137,4 +142,9 @@ void sys_cd();
 void sys_rmdir();
 void sys_touch();
 void sys_cat();
+
+int sys_fopen(char *name, int access);
+int sys_fwrite(int fd, char *buff, int size);
+int sys_fread(int fd, char *buff, int size);
+void sys_fclose(int fd);
 #endif

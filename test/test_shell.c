@@ -45,7 +45,7 @@ int num_lock_tasks = 2;
 struct task_info task1 = {(uint32_t)&ready_to_exit_task, USER_PROCESS};
 struct task_info task2 = {(uint32_t)&wait_lock_task, USER_PROCESS};
 struct task_info task3 = {(uint32_t)&wait_exit_task, USER_PROCESS};*/
-struct task_info task1 = {(uint32_t)&drawing_task1, USER_PROCESS};
+struct task_info task1 = {(uint32_t)&test_fs, USER_PROCESS};
 struct task_info task2 = {(uint32_t)&rw_task1, USER_PROCESS};
 struct task_info task3 = {(uint32_t)&drawing_task1, USER_PROCESS};
 /*

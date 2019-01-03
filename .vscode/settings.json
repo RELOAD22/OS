@@ -6,6 +6,7 @@
         "type.h": "c",
         "syscall.h": "c",
         "sched.h": "c",
-        "test5.h": "c"
+        "test5.h": "c",
+        "file.h": "c"
     }
 }

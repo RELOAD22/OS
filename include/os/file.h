@@ -63,6 +63,16 @@ typedef struct dentry
     dentryenum_t dentrycontent[16];
 } dentry_t;
 
+typedef struct fdenum
+{
+    uint32_t inode_num;
+    uint32_t file_wp;
+    uint32_t file_rp;
+    uint8_t valid;
+} fdenum_t;
+
+fdenum_t fd_a[20];
+
 uint32_t inodeofDentry_now;
 
 void sd_card_read(void *dest, uint32_t offset, uint32_t size);
@@ -84,4 +94,12 @@ void do_rmdir();
 void do_touch();
 
 void do_cat();
+
+int do_fopen(char *name, int access);
+
+int do_fwrite(int fd, char *buff, int size);
+
+int do_fread(int fd, char *buff, int size);
+
+void do_fclose(int fd);
 #endif

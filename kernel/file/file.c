@@ -46,7 +46,7 @@ void set_block_map(uint32_t n, uint32_t occupied_flag){
 }
 
 void clear_block_map(){
-    int init_occu_num = sb.data_offset / 8;
+    int init_occu_num = 640 / 8;
     uint8_t *dest = BLOCK_MAP_BASE_V;
     int i;
 
@@ -110,21 +110,22 @@ void do_mkfs()
         printk("have init superblock successfully");    
         return;    
     }*/
-    sb.magic_number = 0x67373;
-    sb.FS_size = 2097152;       //1GB = 2M*512B
+    superblock_t *ptr_dev_sb = START_BASE_V;
+    ptr_dev_sb->magic_number = 0x67373;
+    ptr_dev_sb->FS_size = 2097152;       //1GB = 2M*512B
 
-    sb.start_sector = 1048576;  //512MB = 1M*512B
-    sb.inode_map_offset = 1;    //1
-    sb.block_map_offset = 2;    //64
-    sb.inode_offset = 66;       //512
-    sb.data_offset = 640;       //2M-584
+    ptr_dev_sb->start_sector = 1048576;  //512MB = 1M*512B
+    ptr_dev_sb->inode_map_offset = 1;    //1
+    ptr_dev_sb->block_map_offset = 2;    //64
+    ptr_dev_sb->inode_offset = 66;       //512
+    ptr_dev_sb->data_offset = 640;       //2M-584
     
-    sb.inode_entry_size = 64;   //B
-    sb.dir_entry_size = 32;     //B
+    ptr_dev_sb->inode_entry_size = 64;   //B
+    ptr_dev_sb->dir_entry_size = 32;     //B
 
     vt100_move_cursor(1,1);
     printk("begin init superblock");
-    set_superblock();
+    //set_superblock();
 
     vt100_move_cursor(1,2);
     printk("begin init block_map");
@@ -263,11 +264,11 @@ inode_t *init_file_inode(uint32_t inode_num)
     return inode_loc_v;
 }
 
-const char *current_name=".";
-const char *parrent_name="..";
 
 uint32_t init_dentry(inode_t *inode_p, char *newname, uint32_t parrent_inode_num)
 {
+    const char *current_name=".";
+    const char *parrent_name="..";
     uint8_t dentry_buffer[512];
     uint32_t freeblock_num = find_free_block();
     dentry_t *dentry_loc_v = dentry_buffer;
@@ -291,7 +292,20 @@ uint32_t init_dentry(inode_t *inode_p, char *newname, uint32_t parrent_inode_num
 
     set_block_map(freeblock_num, 1);
     write_block(dentry_loc_v, freeblock_num);
+    clear_buffer(dentry_buffer);
+if(freeblock_num == 6){
+    read_block(dentry_loc_v, freeblock_num);
+    vt100_move_cursor(1,7);
+    printk("%d -",freeblock_num);
+    printk("%d -",dentry_loc_v->inode_num);
+    printk("%d -",dentry_loc_v->dentrycontent[0].name);
+    printk("%d -",dentry_loc_v->dentrycontent[0].inode_num);
+    printk("%d -",dentry_loc_v->dentrycontent[0].valid);
+    printk("%d -",dentry_loc_v->dentrycontent[1].name);
+    printk("%d -",dentry_loc_v->dentrycontent[1].inode_num);
+    printk("%d -",dentry_loc_v->dentrycontent[1].valid);
 
+}
     return freeblock_num;
 }
 
@@ -313,8 +327,9 @@ const char *mydoc_name = "mydoc";
 
 void init_root_dir()
 {
-    write_map();
-
+    read_map();
+const char *current_name=".";
+const char *parrent_name="..";
 
     uint32_t root_inode_num = find_free_inode(); 
     read_inode(root_inode_num);
@@ -337,12 +352,33 @@ void init_root_dir()
     create_dir(root_inode_num, etc_name); //4
     create_dir(root_inode_num, usr_name); //5
     create_dir(root_inode_num, tmp_name); //6
-
+    print_dentry(6,6);
     create_dir(5, bin_name);    //7
     create_dir(5, doc_name);    //8
     create_dir(5, include_name);    //9
     create_dir(8, mydoc_name);    //10
 
+}
+
+void print_dentry(uint32_t inode_num, int y)
+{
+    inode_t *inode_p = INODE_BASE_V + inode_num * 64;
+    uint32_t freeblock_num = inode_p->direct_blocks[0];
+
+    uint8_t dentry_buffer[512];
+    dentry_t *dentry_loc_v = dentry_buffer;
+
+    clear_buffer(dentry_buffer);
+    read_block(dentry_loc_v, freeblock_num);
+    vt100_move_cursor(1,y);
+    printk("%d -",freeblock_num);
+    printk("%d -",dentry_loc_v->inode_num);
+    printk("%d -",dentry_loc_v->dentrycontent[0].name);
+    printk("%d -",dentry_loc_v->dentrycontent[0].inode_num);
+    printk("%d -",dentry_loc_v->dentrycontent[0].valid);
+    printk("%d -",dentry_loc_v->dentrycontent[1].name);
+    printk("%d -",dentry_loc_v->dentrycontent[1].inode_num);
+    printk("%d -",dentry_loc_v->dentrycontent[1].valid);
 }
 
 dentry_t *seek_inode_dentry(uint32_t inode_num)
@@ -378,7 +414,8 @@ void create_dir(uint32_t parrent_inode_num, char *c_dentryname)
 {
     read_map();
     read_inode(parrent_inode_num);
-
+    const char *current_name=".";
+    const char *parrent_name="..";
     //读入父目录inode的目录，判断是否已经存在
     uint8_t parrent_dentry_buffer[512]; 
     clear_buffer(parrent_dentry_buffer);
@@ -544,6 +581,44 @@ void do_cat()
             screen_cursor_y += 1;
     }
 }
+uint8_t runfile_buffer[512]; 
+uint32_t get_runfile_address()
+{
+    read_inode(inodeofDentry_now);
+
+    //读入父目录inode的目录，判断是否已经存在
+    uint8_t parrent_dentry_buffer[512]; 
+    clear_buffer(parrent_dentry_buffer);
+    dentry_t *parrent_dentry = seek_inode_dentry(inodeofDentry_now);
+    sd_card_read(parrent_dentry_buffer, parrent_dentry, 1*512);
+   
+    if(find_in_dentry(parrent_dentry_buffer, split_command[1]) == 0){
+        vt100_move_cursor(screen_cursor_x, screen_cursor_y+1);
+        printk("error! no such file in here");
+        screen_cursor_y += 1;
+        return;
+    }
+
+    dentry_t *parrent_dentry_v = parrent_dentry_buffer;
+    /*在父目录存在*/
+    int i = 0; 
+    for(i = 0; i < 16; ++i){
+        if(parrent_dentry_v->dentrycontent[i].valid == 0)
+            continue;
+        if(strcmp(parrent_dentry_v->dentrycontent[i].name, split_command[1]) == 0)
+            break;
+    }
+
+    uint32_t file_inode_num = parrent_dentry_v->dentrycontent[i].inode_num;
+    read_inode(file_inode_num);
+    inode_t *file_inode_p = INODE_BASE_V + file_inode_num * 64;
+
+    uint32_t block_num = file_inode_p->direct_blocks[0];
+
+    clear_buffer(runfile_buffer);
+    sd_card_read(runfile_buffer, START_BASE + block_num * 4096, 1*512);
+    return (uint32_t)runfile_buffer;
+}
 
 void do_ls()
 {
@@ -593,6 +668,8 @@ void recover_path(){
     }
 }
 void add_path(char *name){
+    const char *current_name=".";
+const char *parrent_name="..";
     int i; int j;
     for(i = 0; i < 8; ++i){
         if(path[i][0]==0)

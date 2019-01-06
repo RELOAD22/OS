@@ -3,6 +3,7 @@
 #include "stdio.h"
 #include "screen.h"
 #include "syscall.h"
+#include "file.h"
 
 char split_command[10][20] = {0};   //命令  分割用
 char path[8][16] = {0};   //当前所在路径
@@ -153,6 +154,14 @@ void exec_func(int test_tasks_num){
     printf("exec process[%d]", test_tasks_num);
 }
 
+void run_func(){
+    uint32_t address = get_runfile_address();
+    printf("run address: %08x    firstc: %08x", address, *(uint32_t *)address);
+    task15.entry_point = (uint32_t)address;
+    sys_spawn(test_tasks[14]);
+    printf("      \n run result:  ");
+}
+
 void kill_func(int pid){
     sys_kill(pid);
     printf("kill process pid = %d", pid);
@@ -258,6 +267,7 @@ void do_command(){
     char *rmdir_cod = "rmdir";
     char *touch_cod = "touch";
     char *cat_cod = "cat";
+    char *run_cod = ".";
     int multicod = 0;
 
     if(command_split(command) > 1){
@@ -319,6 +329,10 @@ void do_command(){
     else if(strcmp(command, ls_cod) == 0){
         //打印文件信息
         ls_func();
+    }
+    else if(multicod && (strcmp(split_command[0], run_cod) == 0)){
+        //执行可执行文件
+        run_func();
     }
     else{  
         //输入错误命令

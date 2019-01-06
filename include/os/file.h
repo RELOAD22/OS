@@ -102,4 +102,6 @@ int do_fwrite(int fd, char *buff, int size);
 int do_fread(int fd, char *buff, int size);
 
 void do_fclose(int fd);
+
+uint32_t get_runfile_address();
 #endif

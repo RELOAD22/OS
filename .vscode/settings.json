@@ -7,6 +7,7 @@
         "syscall.h": "c",
         "sched.h": "c",
         "test5.h": "c",
-        "file.h": "c"
+        "file.h": "c",
+        "test_fs.h": "c"
     }
 }

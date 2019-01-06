@@ -274,7 +274,7 @@ void irq_enable(int IRQn)
 
 void print_buffer(uint32_t *buffer)
 {
-    int num_row = 5;    //一一共多少行
+    int num_row = 10;    //一一共多少行
     int num_line = 5;   //一共多少列
     int countr, countl; 
     int init_loction = 6;
@@ -290,9 +290,10 @@ void print_buffer(uint32_t *buffer)
 
 void check_recv(mac_t *test_mac)
 {
-    int count; uint32_t time = 1000000;
+    int count; uint32_t time = 200000;
     uint32_t buffer_loc = test_mac->daddr;
 
+/*
     for(count = 0; count < 64; ++count){
         print_buffer(buffer_loc);
         buffer_loc += 1024;
@@ -300,7 +301,9 @@ void check_recv(mac_t *test_mac)
         {
             time--;
         }
-    }
+    }*/
+    buffer_loc += 20 * 1024;
+    print_buffer(buffer_loc);
 }
 
 void set_sram_ctr()

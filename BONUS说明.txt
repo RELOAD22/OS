@@ -1,0 +1,10 @@
+1.使用project1框架编译sfile文件
+2.将sfile文件拷贝至pktrxtx文件夹下，使用vs2017开发人员命令提示符执行build.dat
+3.使用管理员模式执行pktRxTx.exe -m 2
+4.开启虚拟机，正常打开minicom
+5.执行exec 5,初始化mac
+6.执行exec 4,开始接收程序
+7.新建sfile文件（空）
+8.执行exec 0,将网卡接收到的内容拷贝至sfile
+9.使用./sfile执行文件，等待输出
+10.验证输出是否与一开始的sfile.s的应有输出一致

@@ -1,4 +1,4 @@
-1.使用project1框架编译sfile文件
+1.编译sfile文件
 2.将sfile文件拷贝至pktrxtx文件夹下，使用vs2017开发人员命令提示符执行build.dat
 3.使用管理员模式执行pktRxTx.exe -m 2
 4.开启虚拟机，正常打开minicom

@@ -77,19 +77,21 @@ void do_TLB_Refill(int Context){
 
 		tlb_unused_index++;
 
-	    vt100_move_cursor(1, 7);
+	    //vt100_move_cursor(1, 7);
+		/*
 		if(page_fault_flag == 0)	
 	    	printk("(PTE)asid:%x BadVaddr:%x vnum: %x pnum: %x                    ", (asid & 0xff), Context,BadVnum,epfn);
 		else
 	    	printk("(pfault)asid:%x BadVaddr:%x vnum: %x pnum: %x                 ", (asid & 0xff), Context,BadVnum,epfn);
-    }
+		*/
+	}
     else{   //查找到了对应的虚拟地址，此时index设置到相应位置
         set_tlb();  
-	    vt100_move_cursor(1, 7);
-	    printk("(invalid)asid:%x BadVaddr:%x vnum: %x pnum: %x        ", (asid & 0xff), Context,BadVnum,epfn);
+	    //vt100_move_cursor(1, 7);
+	    //printk("(invalid)asid:%x BadVaddr:%x vnum: %x pnum: %x        ", (asid & 0xff), Context,BadVnum,epfn);
     }
-	vt100_move_cursor(1, 8);
-	printk("tlb_unused_index:%x physical_unused_num:%x         ", tlb_unused_index, physical_unused_num);
+	//vt100_move_cursor(1, 8);
+	//printk("tlb_unused_index:%x physical_unused_num:%x         ", tlb_unused_index, physical_unused_num);
 }
 
 void do_page_fault(int BadVnum){
@@ -136,7 +138,7 @@ void do_page_fault(int BadVnum){
 		if(physical_unused_num == PYHSICAL_PAGE_NUMBER)
 			pyhsical_page_full_flag = 1;
 	}
-				vt100_move_cursor(1, 10);
+				//vt100_move_cursor(1, 10);
 	//printk("B_pid:%x Bcount:%x vaddr:%x         ", pid_now, count, BadVnum);
 
 }

@@ -581,7 +581,7 @@ void do_cat()
             screen_cursor_y += 1;
     }
 }
-uint8_t runfile_buffer[512]; 
+
 uint32_t get_runfile_address()
 {
     read_inode(inodeofDentry_now);

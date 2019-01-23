@@ -73,6 +73,8 @@ typedef struct fdenum
 
 fdenum_t fd_a[20];
 
+uint8_t runfile_buffer[512]; 
+
 uint32_t inodeofDentry_now;
 
 void sd_card_read(void *dest, uint32_t offset, uint32_t size);

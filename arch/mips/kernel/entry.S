@@ -193,6 +193,12 @@ NESTED(enable_interrupt, 0, ra)
     jr  ra
 END(enable_interrupt)
 
+LEAF(jump_sfile)
+    jal     a0
+	nop
+    jr ra
+END(jump_sfile)
+
 .global exception_handler_begin
 .global exception_handler_end
 

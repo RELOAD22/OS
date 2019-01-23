@@ -121,7 +121,50 @@ combuff[10] = 0x0;*/
     }
     printf("%08x \n", combuff);
     //task15.entry_point = (uint32_t)combuff;
+    sys_move_cursor(20,1);
+    uint32_t mem1 = 0x0;
+    uint32_t readresult = 0x0;
+    for (i = 0; i < 20; i++)
+    {
+        *(uint32_t *)mem1 = combuff[i];
+
+        if(i <= 10){
+            readresult = *(uint32_t *)mem1;
+            sys_move_cursor(20,i + 1);
+            printf("%08x: %08x \n", mem1, readresult);
+        }
+        mem1 += 4;
+    }    
+    
     sys_fclose(fd);
     sys_exit();
 }
+
+
+void test_sfile(void)
+{
+    int i, j;
+
+    sys_move_cursor(20,1);
+    uint32_t mem1 = 0x100;
+    uint32_t readresult = 0x0;
+    uint32_t com_addr = runfile_buffer;
+    for (i = 0; i < 20; i++)
+    {
+        *(uint32_t *)mem1 = *(uint32_t *)(com_addr + 4*i);
+
+        if(i <= 10){
+            readresult = *(uint32_t *)mem1;
+            sys_move_cursor(20,i + 1);
+            printf("%08x: %08x \n", mem1, readresult);
+        }
+        mem1 += 4;
+    }    
+    sys_move_cursor(2,2);
+    jump_sfile(runfile_buffer);
+
+    sys_exit();
+}
+
+
 

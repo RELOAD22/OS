@@ -65,7 +65,7 @@ struct task_info task11 = {(uint32_t)&barrier_task2, USER_PROCESS};
 struct task_info task12 = {(uint32_t)&barrier_task3, USER_PROCESS};
 struct task_info task13 = {(uint32_t)&SunQuan, USER_PROCESS};
 struct task_info task14 = {(uint32_t)&LiuBei, USER_PROCESS};
-struct task_info task15 = {(uint32_t)&CaoCao, USER_PROCESS};
+struct task_info task15 = {(uint32_t)&test_sfile, USER_PROCESS};
 struct task_info *test_tasks[16] = {&task1, &task2, &task3,
                                     &task4, &task5, &task6,
                                     &task7, &task8, &task9,
@@ -157,7 +157,7 @@ void exec_func(int test_tasks_num){
 void run_func(){
     uint32_t address = get_runfile_address();
     printf("run address: %08x    firstc: %08x", address, *(uint32_t *)address);
-    task15.entry_point = (uint32_t)address;
+    //task15.entry_point = (uint32_t)address;
     sys_spawn(test_tasks[14]);
     printf("      \n run result:  ");
 }
